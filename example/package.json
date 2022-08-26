@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "start": "cd example/src && elm reactor",
+    "start": "cd src && elm reactor",
     "build": "elm make example/src/Main.elm --output=dist/index.html --optimize"
   },
   "dependencies": {
