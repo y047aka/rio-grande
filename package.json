@@ -1,0 +1,12 @@
+{
+  "scripts": {
+    "start": "cd example/src && elm reactor",
+    "build": "elm make example/src/Main.elm --output=dist/index.html --optimize"
+  },
+  "dependencies": {
+    "elm": "^0.19.1-5"
+  },
+  "devDependencies": {
+    "elm-format": "^0.8.5"
+  }
+}
