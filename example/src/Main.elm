@@ -2,24 +2,18 @@ module Main exposing (main)
 
 import Browser
 import ConfigAndPreview exposing (configAndPreview)
-import Css exposing (backgroundColor, borderBottom3, displayFlex, hex, int, justifyContent, padding, position, px, solid, spaceBetween, sticky, top, zIndex, zero)
-import Css.FontAwesome exposing (fontAwesome)
-import Css.Global exposing (global)
-import Css.Reset exposing (normalize)
-import Css.ResetAndCustomize exposing (additionalReset, globalCustomize)
-import Data.Theme as Theme exposing (Theme(..))
-import Html.Styled as Html exposing (Html, div, header, input, main_, option, select, text, toUnstyled)
-import Html.Styled.Attributes exposing (css, selected, type_, value)
+import Css exposing (int)
+import Data.Theme exposing (Theme(..))
+import Html.Styled as Html exposing (Html, input, option, select, text, toUnstyled)
+import Html.Styled.Attributes exposing (selected, type_, value)
 import Html.Styled.Events exposing (onClick, onInput)
 import Random
-import UI.Breadcrumb exposing (BreadcrumbItem, Divider(..), breadcrumbWithProps)
+import Skeleton exposing (skeleton)
 import UI.Button exposing (button, labeledButton)
 import UI.Checkbox exposing (checkbox)
-import UI.Container exposing (container)
 import UI.Input as Input
 import UI.Label exposing (basicLabel)
 import UI.Progress as Progress exposing (State(..))
-import UI.Segment exposing (basicSegment)
 
 
 main : Program () Model Msg
@@ -181,7 +175,8 @@ view model =
                 , button [ onClick ProgressPlus ] [ text "+" ]
                 ]
     in
-    layout model
+    skeleton model
+        { changeThemeMsg = ChangeTheme }
         [ configAndPreview
             { title = "Progress"
             , preview =
@@ -264,48 +259,3 @@ view model =
                 ]
             }
         ]
-
-
-layout : Model -> List (Html Msg) -> Html Msg
-layout model body =
-    div []
-        [ global (normalize ++ additionalReset ++ globalCustomize ++ fontAwesome)
-        , siteHeader model { title = "title" }
-        , main_ [] [ basicSegment { theme = Light } [] [ container [] body ] ]
-        ]
-
-
-siteHeader : Model -> { title : String } -> Html Msg
-siteHeader model page =
-    header
-        [ css
-            [ position sticky
-            , top zero
-            , zIndex (int 1)
-            , displayFlex
-            , justifyContent spaceBetween
-            , padding (px 20)
-            , backgroundColor (hex "#FFF")
-            , borderBottom3 (px 1) solid (hex "#EEE")
-            ]
-        ]
-        [ breadcrumbWithProps { divider = Slash, size = Nothing, theme = model.theme }
-            (breadcrumbItems page)
-        , div []
-            [ select [ onInput (Theme.fromString >> Maybe.withDefault model.theme >> (\theme -> ChangeTheme theme)) ] <|
-                List.map (\theme -> option [ value (Theme.toString theme), selected (model.theme == theme) ] [ text (Theme.toString theme) ])
-                    [ System, Light, Dark ]
-            ]
-        ]
-
-
-breadcrumbItems : { title : String } -> List BreadcrumbItem
-breadcrumbItems { title } =
-    case "/" of
-        "/" ->
-            [ { label = "Top", url = "/" } ]
-
-        _ ->
-            [ { label = "Top", url = "/" }
-            , { label = title, url = "" }
-            ]
