@@ -1,9 +1,10 @@
 module ConfigAndPreview exposing (configAndPreview)
 
 import Css exposing (..)
+import Data.Theme exposing (Theme(..))
 import Html.Styled as Html exposing (Html, aside, div, label, p, text)
 import Html.Styled.Attributes exposing (css)
-import UI.Example exposing (example)
+import UI.Header as Header
 
 
 type alias FieldSet msg =
@@ -19,8 +20,23 @@ configAndPreview :
     }
     -> Html msg
 configAndPreview { title, preview, configs } =
-    example { title = title, description = "" }
-        [ div
+    let
+        title_ =
+            if title == "" then
+                text ""
+
+            else
+                Header.header { theme = Light } [] [ text title ]
+    in
+    Html.styled Html.div
+        [ padding2 (em 2) zero
+        , position relative
+        , property "-webkit-tap-highlight-color" "transparent"
+        , whiteSpace preWrap
+        ]
+        []
+        [ title_
+        , div
             [ css
                 [ property "display" "grid"
                 , property "grid-template-columns" "1fr 300px"
