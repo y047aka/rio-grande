@@ -1,5 +1,6 @@
 module ConfigAndPreview exposing (configAndPreview)
 
+import Config exposing (Config(..), configToField)
 import Css exposing (..)
 import Data.Theme exposing (Theme(..))
 import Html.Styled as Html exposing (Html, aside, div, label, p, text)
@@ -7,19 +8,19 @@ import Html.Styled.Attributes exposing (css)
 import UI.Header as Header
 
 
-type alias FieldSet msg =
+type alias ConfigSection option msg =
     { label : String
-    , fields : List { label : String, description : String, content : Html msg }
+    , configs : List { label : String, config : Config option msg, note : String }
     }
 
 
 configAndPreview :
     { title : String
     , preview : List (Html msg)
-    , configs : List (FieldSet msg)
+    , configSets : List (ConfigSection option msg)
     }
     -> Html msg
-configAndPreview { title, preview, configs } =
+configAndPreview { title, preview, configSets } =
     let
         title_ =
             if title == "" then
@@ -44,13 +45,13 @@ configAndPreview { title, preview, configs } =
                 ]
             ]
             [ div [ css [ width (pct 100) ] ] preview
-            , configPanel configs
+            , configPanel configSets
             ]
         ]
 
 
-configPanel : List (FieldSet msg) -> Html msg
-configPanel configs =
+configPanel : List (ConfigSection option msg) -> Html msg
+configPanel configSets =
     aside
         [ css
             [ paddingLeft (px 15)
@@ -58,7 +59,7 @@ configPanel configs =
             ]
         ]
         (List.map
-            (\fieldset ->
+            (\configSet ->
                 div
                     [ css
                         [ displayFlex
@@ -77,17 +78,17 @@ configPanel configs =
                             , empty [ display none ]
                             ]
                         ]
-                        [ text fieldset.label ]
+                        [ text configSet.label ]
                         :: List.map
                             (\field ->
                                 div [ css [ displayFlex, flexDirection column, property "gap" "5px" ] ]
                                     [ label [] [ text field.label ]
-                                    , field.content
-                                    , p [ css [ color (hex "#999") ] ] [ text field.description ]
+                                    , configToField field.config
+                                    , p [ css [ color (hex "#999") ] ] [ text field.note ]
                                     ]
                             )
-                            fieldset.fields
+                            configSet.configs
                     )
             )
-            configs
+            configSets
         )

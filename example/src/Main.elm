@@ -1,18 +1,13 @@
 module Main exposing (main)
 
 import Browser
+import Config exposing (Config(..))
 import ConfigAndPreview exposing (configAndPreview)
 import Css exposing (int)
 import Data.Theme exposing (Theme(..))
-import Html.Styled as Html exposing (Html, input, option, select, text, toUnstyled)
-import Html.Styled.Attributes exposing (selected, type_, value)
-import Html.Styled.Events exposing (onClick, onInput)
+import Html.Styled as Html exposing (Html, toUnstyled)
 import Random
 import Skeleton exposing (skeleton)
-import UI.Button exposing (button, labeledButton)
-import UI.Checkbox exposing (checkbox)
-import UI.Input as Input
-import UI.Label exposing (basicLabel)
 import UI.Progress as Progress exposing (State(..))
 
 
@@ -167,14 +162,6 @@ updatelabelOnIndicating model =
 
 view : Model -> Html Msg
 view model =
-    let
-        controller =
-            labeledButton []
-                [ button [ onClick ProgressMinus ] [ text "-" ]
-                , basicLabel [] [ text (String.fromFloat model.progressValue ++ "%") ]
-                , button [ onClick ProgressPlus ] [ text "+" ]
-                ]
-    in
     skeleton model
         { changeThemeMsg = ChangeTheme }
         [ configAndPreview
@@ -188,33 +175,41 @@ view model =
                     , state = model.state
                     }
                 ]
-            , configs =
+            , configSets =
                 [ { label = "Bar"
-                  , fields =
+                  , configs =
                         [ { label = ""
-                          , description = "A progress element can contain a bar visually indicating progress"
-                          , content = controller
+                          , config = Counter { value = model.progressValue, suffix = "%", onClickPlus = ProgressPlus, onClickMinus = ProgressMinus }
+                          , note = "A progress element can contain a bar visually indicating progress"
                           }
                         ]
                   }
                 , { label = "Types"
-                  , fields =
+                  , configs =
                         [ { label = ""
-                          , description = "An indicating progress bar visually indicates the current level of progress of a task"
-                          , content =
-                                checkbox
+                          , config =
+                                Bool
                                     { id = "indicating"
                                     , label = "Indicating"
-                                    , checked = model.indicating
+                                    , bool = model.indicating
                                     , onClick = ToggleIndicating
                                     }
+                          , note = "An indicating progress bar visually indicates the current level of progress of a task"
                           }
                         ]
                   }
                 , { label = "States"
-                  , fields =
+                  , configs =
                         [ { label = ""
-                          , description =
+                          , config =
+                                Select
+                                    { options = [ Default, Active, Success, Warning, Error, Disabled ]
+                                    , value = model.state
+                                    , fromString = Progress.stateFromString
+                                    , toString = Progress.stateToString
+                                    , onChange = ChangeState
+                                    }
+                          , note =
                                 case model.state of
                                     Active ->
                                         "A progress bar can show activity"
@@ -233,26 +228,18 @@ view model =
 
                                     _ ->
                                         ""
-                          , content =
-                                select [ onInput (Progress.stateFromString >> Maybe.withDefault model.state >> ChangeState) ] <|
-                                    List.map (\state -> option [ value (Progress.stateToString state), selected (model.state == state) ] [ text (Progress.stateToString state) ])
-                                        [ Default, Active, Success, Warning, Error, Disabled ]
                           }
                         ]
                   }
                 , { label = "Content"
-                  , fields =
+                  , configs =
                         [ { label = "Progress"
-                          , description = "A progress bar can contain a text value indicating current progress"
-                          , content =
-                                Input.input []
-                                    [ input [ type_ "text", value model.progressLabel, onInput EditProgressLabel ] [] ]
+                          , config = String { label = "", value = model.progressLabel, onInput = EditProgressLabel }
+                          , note = "A progress bar can contain a text value indicating current progress"
                           }
                         , { label = "Label"
-                          , description = "A progress element can contain a label"
-                          , content =
-                                Input.input []
-                                    [ input [ type_ "text", value model.label, onInput EditLabel ] [] ]
+                          , config = String { label = "", value = model.label, onInput = EditLabel }
+                          , note = "A progress element can contain a label"
                           }
                         ]
                   }
