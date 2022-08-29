@@ -27,7 +27,7 @@ type Config option msg
         , toString : option -> String
         , onChange : option -> msg
         }
-    | Counter { value : Float, suffix : String, onClickPlus : msg, onClickMinus : msg }
+    | Counter { value : Float, toString : Float -> String, onClickPlus : msg, onClickMinus : msg }
 
 
 configToField : Config a msg -> Html msg
@@ -82,6 +82,6 @@ configToField config =
         Counter c ->
             labeledButton []
                 [ button [ onClick c.onClickMinus ] [ text "-" ]
-                , basicLabel [] [ text (String.fromFloat c.value ++ c.suffix) ]
+                , basicLabel [] [ text (c.toString c.value) ]
                 , button [ onClick c.onClickPlus ] [ text "+" ]
                 ]

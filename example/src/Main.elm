@@ -179,7 +179,13 @@ view model =
                 [ { label = "Bar"
                   , configs =
                         [ { label = ""
-                          , config = Counter { value = model.progressValue, suffix = "%", onClickPlus = ProgressPlus, onClickMinus = ProgressMinus }
+                          , config =
+                                Counter
+                                    { value = model.progressValue
+                                    , toString = \value -> String.fromFloat value ++ "%"
+                                    , onClickPlus = ProgressPlus
+                                    , onClickMinus = ProgressMinus
+                                    }
                           , note = "A progress element can contain a bar visually indicating progress"
                           }
                         ]
