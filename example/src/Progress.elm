@@ -1,4 +1,4 @@
-module Main exposing (main)
+module Progress exposing (main)
 
 import Browser
 import Config exposing (Config(..))
