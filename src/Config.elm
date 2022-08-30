@@ -1,4 +1,4 @@
-module Config exposing (Config(..), configToField)
+module Config exposing (Config(..), Msg, configToField, update)
 
 import Html.Styled as Html exposing (Html, div, input, label, select, text)
 import Html.Styled.Attributes exposing (checked, for, id, name, selected, type_, value)
@@ -9,29 +9,61 @@ import UI.Input as Input
 import UI.Label exposing (basicLabel)
 
 
-type Config option msg
-    = String { label : String, value : String, onInput : String -> msg }
-    | Bool { id : String, label : String, bool : Bool, onClick : msg }
+type Msg model
+    = UpdateString (model -> model)
+    | UpdateBool (model -> model)
+    | UpdateRadio (model -> model)
+    | UpdateSelect (model -> model)
+
+
+update : Msg model -> model -> model
+update msg =
+    case msg of
+        UpdateString f ->
+            f
+
+        UpdateBool f ->
+            f
+
+        UpdateRadio f ->
+            f
+
+        UpdateSelect f ->
+            f
+
+
+type Config model option msg
+    = String
+        { label : String
+        , value : String
+        , setter : String -> model -> model
+        }
+    | Bool
+        { id : String
+        , label : String
+        , bool : Bool
+        , setter : model -> model
+        }
     | Radio
         { name : String
         , value : option
         , options : List option
         , fromString : String -> Maybe option
         , toString : option -> String
-        , onChange : option -> msg
+        , setter : option -> model -> model
         }
     | Select
         { value : option
         , options : List option
         , fromString : String -> Maybe option
         , toString : option -> String
-        , onChange : option -> msg
+        , setter : option -> model -> model
         }
     | Counter { value : Float, toString : Float -> String, onClickPlus : msg, onClickMinus : msg }
 
 
-configToField : Config a msg -> Html msg
-configToField config =
+configToField : (Msg model -> msg) -> Config model state msg -> Html msg
+configToField msg config =
     case config of
         String c ->
             Input.input []
@@ -40,7 +72,7 @@ configToField config =
 
                   else
                     text ""
-                , input [ type_ "text", value c.value, onInput c.onInput ] []
+                , input [ type_ "text", value c.value, onInput (c.setter >> UpdateString >> msg) ] []
                 ]
 
         Bool c ->
@@ -48,7 +80,7 @@ configToField config =
                 { id = c.id
                 , label = c.label
                 , checked = c.bool
-                , onClick = c.onClick
+                , onClick = msg (UpdateBool c.setter)
                 }
 
         Radio c ->
@@ -66,7 +98,7 @@ configToField config =
                                 , name c.name
                                 , value (c.toString option)
                                 , checked (c.value == option)
-                                , onInput (c.fromString >> Maybe.withDefault c.value >> c.onChange)
+                                , onInput (c.fromString >> Maybe.withDefault c.value >> c.setter >> UpdateRadio >> msg)
                                 ]
                                 []
                             , label [ for prefixedId ] [ text (c.toString option) ]
@@ -75,9 +107,10 @@ configToField config =
                     c.options
 
         Select c ->
-            select [ onInput (c.fromString >> Maybe.withDefault c.value >> c.onChange) ] <|
-                List.map (\option -> Html.option [ value (c.toString option), selected (c.value == option) ] [ text (c.toString option) ])
+            select [ onInput (c.fromString >> Maybe.withDefault c.value >> c.setter >> UpdateSelect >> msg) ]
+                (List.map (\option -> Html.option [ value (c.toString option), selected (c.value == option) ] [ text (c.toString option) ])
                     c.options
+                )
 
         Counter c ->
             labeledButton []

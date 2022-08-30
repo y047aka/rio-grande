@@ -54,13 +54,10 @@ init _ =
 
 type Msg
     = ChangeTheme Theme
+    | UpdateConfig (Config.Msg Model)
     | ProgressPlus
     | ProgressMinus
     | NewProgress Int
-    | EditProgressLabel String
-    | EditLabel String
-    | ToggleIndicating
-    | ChangeState State
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -68,6 +65,9 @@ update msg model =
     case msg of
         ChangeTheme theme ->
             ( { model | theme = theme }, Cmd.none )
+
+        UpdateConfig configMsg ->
+            ( Config.update configMsg model, Cmd.none )
 
         ProgressPlus ->
             ( model, Random.generate NewProgress (Random.int 10 15) )
@@ -95,50 +95,6 @@ update msg model =
             , Cmd.none
             )
 
-        EditProgressLabel string ->
-            ( { model | progressLabel = string }, Cmd.none )
-
-        EditLabel string ->
-            ( { model | label = string }, Cmd.none )
-
-        ToggleIndicating ->
-            let
-                newIndicating =
-                    not model.indicating
-            in
-            ( { model
-                | indicating = newIndicating
-                , label =
-                    if newIndicating then
-                        model.label
-
-                    else
-                        "Uploading Files"
-              }
-                |> updatelabelOnIndicating
-            , Cmd.none
-            )
-
-        ChangeState state ->
-            ( { model
-                | state = state
-                , label =
-                    case state of
-                        Success ->
-                            "Everything worked, your file is all ready."
-
-                        Warning ->
-                            "Your file didn't meet the minimum resolution requirements."
-
-                        Error ->
-                            "There was an error."
-
-                        _ ->
-                            model.label
-              }
-            , Cmd.none
-            )
-
 
 updatelabelOnIndicating : Model -> Model
 updatelabelOnIndicating model =
@@ -162,93 +118,135 @@ updatelabelOnIndicating model =
 
 view : Model -> Html Msg
 view model =
-    skeleton model
-        { changeThemeMsg = ChangeTheme }
-        [ configAndPreview
-            { title = "Progress"
-            , preview =
-                [ Progress.progressWithProps
-                    { value = model.progressValue
-                    , progress = String.fromFloat model.progressValue ++ model.progressLabel
-                    , label = model.label
-                    , indicating = model.indicating
-                    , state = model.state
-                    }
-                ]
-            , configSets =
-                [ { label = "Bar"
-                  , configs =
-                        [ { label = ""
-                          , config =
-                                Counter
-                                    { value = model.progressValue
-                                    , toString = \value -> String.fromFloat value ++ "%"
-                                    , onClickPlus = ProgressPlus
-                                    , onClickMinus = ProgressMinus
-                                    }
-                          , note = "A progress element can contain a bar visually indicating progress"
-                          }
-                        ]
-                  }
-                , { label = "Types"
-                  , configs =
-                        [ { label = ""
-                          , config =
-                                Bool
-                                    { id = "indicating"
-                                    , label = "Indicating"
-                                    , bool = model.indicating
-                                    , onClick = ToggleIndicating
-                                    }
-                          , note = "An indicating progress bar visually indicates the current level of progress of a task"
-                          }
-                        ]
-                  }
-                , { label = "States"
-                  , configs =
-                        [ { label = ""
-                          , config =
-                                Select
-                                    { options = [ Default, Active, Success, Warning, Error, Disabled ]
-                                    , value = model.state
-                                    , fromString = Progress.stateFromString
-                                    , toString = Progress.stateToString
-                                    , onChange = ChangeState
-                                    }
-                          , note =
-                                case model.state of
-                                    Active ->
-                                        "A progress bar can show activity"
+    skeleton model { changeThemeMsg = ChangeTheme } <|
+        List.map (\cap -> cap UpdateConfig)
+            [ configAndPreview
+                { title = "Progress"
+                , preview =
+                    [ Progress.progressWithProps
+                        { value = model.progressValue
+                        , progress = String.fromFloat model.progressValue ++ model.progressLabel
+                        , label = model.label
+                        , indicating = model.indicating
+                        , state = model.state
+                        }
+                    ]
+                , configSets =
+                    [ { label = "Bar"
+                      , configs =
+                            [ { label = ""
+                              , config =
+                                    Counter
+                                        { value = model.progressValue
+                                        , toString = \value -> String.fromFloat value ++ "%"
+                                        , onClickPlus = ProgressPlus
+                                        , onClickMinus = ProgressMinus
+                                        }
+                              , note = "A progress element can contain a bar visually indicating progress"
+                              }
+                            ]
+                      }
+                    , { label = "Types"
+                      , configs =
+                            [ { label = ""
+                              , config =
+                                    Bool
+                                        { id = "indicating"
+                                        , label = "Indicating"
+                                        , bool = model.indicating
+                                        , setter =
+                                            \m ->
+                                                let
+                                                    newIndicating =
+                                                        not m.indicating
+                                                in
+                                                { m
+                                                    | indicating = newIndicating
+                                                    , label =
+                                                        if newIndicating then
+                                                            m.label
 
-                                    Success ->
-                                        "A progress bar can show a success state"
+                                                        else
+                                                            "Uploading Files"
+                                                }
+                                                    |> updatelabelOnIndicating
+                                        }
+                              , note = "An indicating progress bar visually indicates the current level of progress of a task"
+                              }
+                            ]
+                      }
+                    , { label = "States"
+                      , configs =
+                            [ { label = ""
+                              , config =
+                                    Select
+                                        { value = model.state
+                                        , options = [ Default, Active, Success, Warning, Error, Disabled ]
+                                        , fromString = Progress.stateFromString
+                                        , toString = Progress.stateToString
+                                        , setter =
+                                            \state m ->
+                                                { m
+                                                    | state = state
+                                                    , label =
+                                                        case state of
+                                                            Success ->
+                                                                "Everything worked, your file is all ready."
 
-                                    Warning ->
-                                        "A progress bar can show a warning state"
+                                                            Warning ->
+                                                                "Your file didn't meet the minimum resolution requirements."
 
-                                    Error ->
-                                        "A progress bar can show an error state"
+                                                            Error ->
+                                                                "There was an error."
 
-                                    Disabled ->
-                                        "A progress bar can be disabled"
+                                                            _ ->
+                                                                model.label
+                                                }
+                                        }
+                              , note =
+                                    case model.state of
+                                        Active ->
+                                            "A progress bar can show activity"
 
-                                    _ ->
-                                        ""
-                          }
-                        ]
-                  }
-                , { label = "Content"
-                  , configs =
-                        [ { label = "Progress"
-                          , config = String { label = "", value = model.progressLabel, onInput = EditProgressLabel }
-                          , note = "A progress bar can contain a text value indicating current progress"
-                          }
-                        , { label = "Label"
-                          , config = String { label = "", value = model.label, onInput = EditLabel }
-                          , note = "A progress element can contain a label"
-                          }
-                        ]
-                  }
-                ]
-            }
-        ]
+                                        Success ->
+                                            "A progress bar can show a success state"
+
+                                        Warning ->
+                                            "A progress bar can show a warning state"
+
+                                        Error ->
+                                            "A progress bar can show an error state"
+
+                                        Disabled ->
+                                            "A progress bar can be disabled"
+
+                                        _ ->
+                                            ""
+                              }
+                            ]
+                      }
+                    , { label = "Content"
+                      , configs =
+                            [ { label = "Progress"
+                              , config =
+                                    String
+                                        { label = ""
+                                        , value = model.progressLabel
+                                        , setter = \string m -> { m | progressLabel = string }
+                                        }
+                              , note = "A progress bar can contain a text value indicating current progress"
+                              }
+                            , { label = "Label"
+                              , config =
+                                    String
+                                        { label = ""
+                                        , value = model.label
+                                        , setter = \string m -> { m | label = string }
+                                        }
+                              , note = "A progress element can contain a label"
+                              }
+                            ]
+                      }
+                    ]
+                }
+            ]

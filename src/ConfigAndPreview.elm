@@ -8,19 +8,20 @@ import Html.Styled.Attributes exposing (css)
 import UI.Header as Header
 
 
-type alias ConfigSection option msg =
+type alias ConfigSection model option msg =
     { label : String
-    , configs : List { label : String, config : Config option msg, note : String }
+    , configs : List { label : String, config : Config model option msg, note : String }
     }
 
 
 configAndPreview :
     { title : String
     , preview : List (Html msg)
-    , configSets : List (ConfigSection option msg)
+    , configSets : List (ConfigSection model option msg)
     }
+    -> (Config.Msg model -> msg)
     -> Html msg
-configAndPreview { title, preview, configSets } =
+configAndPreview { title, preview, configSets } msg =
     let
         title_ =
             if title == "" then
@@ -45,13 +46,13 @@ configAndPreview { title, preview, configSets } =
                 ]
             ]
             [ div [ css [ width (pct 100) ] ] preview
-            , configPanel configSets
+            , configPanel msg configSets
             ]
         ]
 
 
-configPanel : List (ConfigSection option msg) -> Html msg
-configPanel configSets =
+configPanel : (Config.Msg model -> msg) -> List (ConfigSection model option msg) -> Html msg
+configPanel msg configSets =
     aside
         [ css
             [ paddingLeft (px 15)
@@ -83,7 +84,7 @@ configPanel configSets =
                             (\field ->
                                 div [ css [ displayFlex, flexDirection column, property "gap" "5px" ] ]
                                     [ label [] [ text field.label ]
-                                    , configToField field.config
+                                    , configToField msg field.config
                                     , p [ css [ color (hex "#999") ] ] [ text field.note ]
                                     ]
                             )

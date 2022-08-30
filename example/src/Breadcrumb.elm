@@ -48,8 +48,7 @@ init _ =
 
 type Msg
     = ChangeTheme Theme
-    | ChangeDivider Divider
-    | ChangeSize Size
+    | UpdateConfig (Config.Msg Model)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -58,11 +57,8 @@ update msg model =
         ChangeTheme theme ->
             ( { model | theme = theme }, Cmd.none )
 
-        ChangeDivider divider ->
-            ( { model | divider = divider }, Cmd.none )
-
-        ChangeSize size ->
-            ( { model | size = size }, Cmd.none )
+        UpdateConfig configMsg ->
+            ( Config.update configMsg model, Cmd.none )
 
 
 
@@ -75,90 +71,90 @@ view model =
         options =
             { divider = model.divider, theme = model.theme }
     in
-    skeleton model
-        { changeThemeMsg = ChangeTheme }
-        [ let
-            breadcrumb_ =
-                case model.size of
-                    Mini ->
-                        miniBreadCrumb
+    skeleton model { changeThemeMsg = ChangeTheme } <|
+        List.map (\cap -> cap UpdateConfig)
+            [ let
+                breadcrumb_ =
+                    case model.size of
+                        Mini ->
+                            miniBreadCrumb
 
-                    Tiny ->
-                        tinyBreadCrumb
+                        Tiny ->
+                            tinyBreadCrumb
 
-                    Small ->
-                        smallBreadCrumb
+                        Small ->
+                            smallBreadCrumb
 
-                    Medium ->
-                        mediumBreadCrumb
+                        Medium ->
+                            mediumBreadCrumb
 
-                    Large ->
-                        largeBreadCrumb
+                        Large ->
+                            largeBreadCrumb
 
-                    Big ->
-                        bigBreadCrumb
+                        Big ->
+                            bigBreadCrumb
 
-                    Huge ->
-                        hugeBreadCrumb
+                        Huge ->
+                            hugeBreadCrumb
 
-                    Massive ->
-                        massiveBreadCrumb
-          in
-          configAndPreview
-            { title = "Breadcrumb"
-            , preview =
-                [ breadcrumb_ options
-                    [ { label = "Home", url = "/" }
-                    , { label = "Store", url = "/" }
-                    , { label = "T-Shirt", url = "" }
-                    ]
-                ]
-            , configSets =
-                [ { label = "Content"
-                  , configs =
-                        [ { label = "Divider"
-                          , config =
-                                Select
-                                    { value = model.divider
-                                    , options = [ Slash, RightChevron ]
-                                    , fromString = dividerFromString
-                                    , toString = dividerToString
-                                    , onChange = ChangeDivider
-                                    }
-                          , note = "A breadcrumb can contain a divider to show the relationship between sections, this can be formatted as an icon or text."
-                          }
-                        ]
-                  }
-
-                -- , { label = "Variations"
-                --   , configs =
-                --         [ { label = "Size"
-                --           , config =
-                --                 Select
-                --                     { value = model.size
-                --                     , options = [ Mini, Tiny, Small, Medium, Large, Big, Huge, Massive ]
-                --                     , fromString = sizeFromString
-                --                     , toString = sizeToString
-                --                     , onChange = ChangeSize
-                --                     }
-                --           , note = "A breadcrumb can vary in size"
-                --           }
-                --         ]
-                --   }
-                ]
-            }
-        , configAndPreview
-            { title = "Inverted"
-            , preview =
-                [ segment { theme = Dark }
-                    []
-                    [ breadcrumbWithProps { divider = Slash, size = Nothing, theme = Dark }
+                        Massive ->
+                            massiveBreadCrumb
+              in
+              configAndPreview
+                { title = "Breadcrumb"
+                , preview =
+                    [ breadcrumb_ options
                         [ { label = "Home", url = "/" }
-                        , { label = "Registration", url = "/" }
-                        , { label = "Personal Information", url = "" }
+                        , { label = "Store", url = "/" }
+                        , { label = "T-Shirt", url = "" }
                         ]
                     ]
-                ]
-            , configSets = []
-            }
-        ]
+                , configSets =
+                    [ { label = "Content"
+                      , configs =
+                            [ { label = "Divider"
+                              , config =
+                                    Select
+                                        { value = model.divider
+                                        , options = [ Slash, RightChevron ]
+                                        , fromString = dividerFromString
+                                        , toString = dividerToString
+                                        , setter = \divider m -> { m | divider = divider }
+                                        }
+                              , note = "A breadcrumb can contain a divider to show the relationship between sections, this can be formatted as an icon or text."
+                              }
+                            ]
+                      }
+
+                    -- , { label = "Variations"
+                    --   , configs =
+                    --         [ { label = "Size"
+                    --           , config =
+                    --                 Select
+                    --                     { value = model.size
+                    --                     , options = [ Mini, Tiny, Small, Medium, Large, Big, Huge, Massive ]
+                    --                     , fromString = sizeFromString
+                    --                     , toString = sizeToString
+                    --                     , setter = \size m -> { m | size = size }
+                    --                     }
+                    --           , note = "A breadcrumb can vary in size"
+                    --           }
+                    --         ]
+                    --   }
+                    ]
+                }
+            , configAndPreview
+                { title = "Inverted"
+                , preview =
+                    [ segment { theme = Dark }
+                        []
+                        [ breadcrumbWithProps { divider = Slash, size = Nothing, theme = Dark }
+                            [ { label = "Home", url = "/" }
+                            , { label = "Registration", url = "/" }
+                            , { label = "Personal Information", url = "" }
+                            ]
+                        ]
+                    ]
+                , configSets = []
+                }
+            ]
