@@ -200,7 +200,7 @@ view model =
                                                                 "There was an error."
 
                                                             _ ->
-                                                                model.label
+                                                                m.label
                                                 }
                                         }
                               , note =
