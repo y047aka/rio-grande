@@ -1,5 +1,5 @@
 module Config exposing
-    ( Msg, update
+    ( Msg(..), update
     , string, bool, radio, select, counter
     )
 
@@ -21,11 +21,21 @@ import UI.Label exposing (basicLabel)
 
 type Msg model
     = Update (model -> model)
+    | CounterPlus
+    | CounterMinus
 
 
 update : Msg model -> model -> model
-update (Update f) =
-    f
+update msg =
+    case msg of
+        Update f ->
+            f
+
+        CounterPlus ->
+            identity
+
+        CounterMinus ->
+            identity
 
 
 string :
@@ -112,13 +122,11 @@ radio c =
 counter :
     { value : Float
     , toString : Float -> String
-    , onClickPlus : msg
-    , onClickMinus : msg
     }
-    -> Html msg
+    -> Html (Msg model)
 counter c =
     labeledButton []
-        [ button [ onClick c.onClickMinus ] [ text "-" ]
+        [ button [ onClick CounterMinus ] [ text "-" ]
         , basicLabel [] [ text (c.toString c.value) ]
-        , button [ onClick c.onClickPlus ] [ text "+" ]
+        , button [ onClick CounterPlus ] [ text "+" ]
         ]

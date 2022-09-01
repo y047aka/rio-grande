@@ -54,10 +54,8 @@ init _ =
 
 type Msg
     = ChangeTheme Theme
-    | UpdateConfig (Config.Msg Model)
-    | ProgressPlus
-    | ProgressMinus
     | NewProgress Int
+    | UpdateConfig (Config.Msg Model)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -65,15 +63,6 @@ update msg model =
     case msg of
         ChangeTheme theme ->
             ( { model | theme = theme }, Cmd.none )
-
-        UpdateConfig configMsg ->
-            ( Config.update configMsg model, Cmd.none )
-
-        ProgressPlus ->
-            ( model, Random.generate NewProgress (Random.int 10 15) )
-
-        ProgressMinus ->
-            ( model, Random.generate NewProgress (Random.int -15 -10) )
 
         NewProgress int ->
             let
@@ -94,6 +83,17 @@ update msg model =
                 |> updatelabelOnIndicating
             , Cmd.none
             )
+
+        UpdateConfig configMsg ->
+            case configMsg of
+                Config.Update updater ->
+                    ( updater model, Cmd.none )
+
+                Config.CounterPlus ->
+                    ( model, Random.generate NewProgress (Random.int 10 15) )
+
+                Config.CounterMinus ->
+                    ( model, Random.generate NewProgress (Random.int -15 -10) )
 
 
 updatelabelOnIndicating : Model -> Model
@@ -136,12 +136,11 @@ view model =
                   , configs =
                         [ { label = ""
                           , config =
-                                Config.counter
-                                    { value = model.progressValue
-                                    , toString = \value -> String.fromFloat value ++ "%"
-                                    , onClickPlus = ProgressPlus
-                                    , onClickMinus = ProgressMinus
-                                    }
+                                Html.map UpdateConfig <|
+                                    Config.counter
+                                        { value = model.progressValue
+                                        , toString = \value -> String.fromFloat value ++ "%"
+                                        }
                           , note = "A progress element can contain a bar visually indicating progress"
                           }
                         ]
