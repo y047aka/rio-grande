@@ -1,7 +1,7 @@
 module Progress exposing (main)
 
 import Browser
-import Config exposing (Config(..))
+import Config
 import ConfigAndPreview exposing (configAndPreview)
 import Css exposing (int)
 import Data.Theme exposing (Theme(..))
@@ -118,39 +118,40 @@ updatelabelOnIndicating model =
 
 view : Model -> Html Msg
 view model =
-    skeleton model { changeThemeMsg = ChangeTheme } <|
-        List.map (\cap -> cap UpdateConfig)
-            [ configAndPreview
-                { title = "Progress"
-                , preview =
-                    [ Progress.progressWithProps
-                        { value = model.progressValue
-                        , progress = String.fromFloat model.progressValue ++ model.progressLabel
-                        , label = model.label
-                        , indicating = model.indicating
-                        , state = model.state
-                        }
-                    ]
-                , configSets =
-                    [ { label = "Bar"
-                      , configs =
-                            [ { label = ""
-                              , config =
-                                    Counter
-                                        { value = model.progressValue
-                                        , toString = \value -> String.fromFloat value ++ "%"
-                                        , onClickPlus = ProgressPlus
-                                        , onClickMinus = ProgressMinus
-                                        }
-                              , note = "A progress element can contain a bar visually indicating progress"
-                              }
-                            ]
-                      }
-                    , { label = "Types"
-                      , configs =
-                            [ { label = ""
-                              , config =
-                                    Bool
+    skeleton model
+        { changeThemeMsg = ChangeTheme }
+        [ configAndPreview
+            { title = "Progress"
+            , preview =
+                [ Progress.progressWithProps
+                    { value = model.progressValue
+                    , progress = String.fromFloat model.progressValue ++ model.progressLabel
+                    , label = model.label
+                    , indicating = model.indicating
+                    , state = model.state
+                    }
+                ]
+            , configSets =
+                [ { label = "Bar"
+                  , configs =
+                        [ { label = ""
+                          , config =
+                                Config.counter
+                                    { value = model.progressValue
+                                    , toString = \value -> String.fromFloat value ++ "%"
+                                    , onClickPlus = ProgressPlus
+                                    , onClickMinus = ProgressMinus
+                                    }
+                          , note = "A progress element can contain a bar visually indicating progress"
+                          }
+                        ]
+                  }
+                , { label = "Types"
+                  , configs =
+                        [ { label = ""
+                          , config =
+                                Html.map UpdateConfig <|
+                                    Config.bool
                                         { id = "indicating"
                                         , label = "Indicating"
                                         , bool = model.indicating
@@ -171,15 +172,16 @@ view model =
                                                 }
                                                     |> updatelabelOnIndicating
                                         }
-                              , note = "An indicating progress bar visually indicates the current level of progress of a task"
-                              }
-                            ]
-                      }
-                    , { label = "States"
-                      , configs =
-                            [ { label = ""
-                              , config =
-                                    Select
+                          , note = "An indicating progress bar visually indicates the current level of progress of a task"
+                          }
+                        ]
+                  }
+                , { label = "States"
+                  , configs =
+                        [ { label = ""
+                          , config =
+                                Html.map UpdateConfig <|
+                                    Config.select
                                         { value = model.state
                                         , options = [ Default, Active, Success, Warning, Error, Disabled ]
                                         , fromString = Progress.stateFromString
@@ -203,50 +205,52 @@ view model =
                                                                 m.label
                                                 }
                                         }
-                              , note =
-                                    case model.state of
-                                        Active ->
-                                            "A progress bar can show activity"
+                          , note =
+                                case model.state of
+                                    Active ->
+                                        "A progress bar can show activity"
 
-                                        Success ->
-                                            "A progress bar can show a success state"
+                                    Success ->
+                                        "A progress bar can show a success state"
 
-                                        Warning ->
-                                            "A progress bar can show a warning state"
+                                    Warning ->
+                                        "A progress bar can show a warning state"
 
-                                        Error ->
-                                            "A progress bar can show an error state"
+                                    Error ->
+                                        "A progress bar can show an error state"
 
-                                        Disabled ->
-                                            "A progress bar can be disabled"
+                                    Disabled ->
+                                        "A progress bar can be disabled"
 
-                                        _ ->
-                                            ""
-                              }
-                            ]
-                      }
-                    , { label = "Content"
-                      , configs =
-                            [ { label = "Progress"
-                              , config =
-                                    String
+                                    _ ->
+                                        ""
+                          }
+                        ]
+                  }
+                , { label = "Content"
+                  , configs =
+                        [ { label = "Progress"
+                          , config =
+                                Html.map UpdateConfig <|
+                                    Config.string
                                         { label = ""
                                         , value = model.progressLabel
                                         , setter = \string m -> { m | progressLabel = string }
                                         }
-                              , note = "A progress bar can contain a text value indicating current progress"
-                              }
-                            , { label = "Label"
-                              , config =
-                                    String
+                          , note = "A progress bar can contain a text value indicating current progress"
+                          }
+                        , { label = "Label"
+                          , config =
+                                Html.map UpdateConfig <|
+                                    Config.string
                                         { label = ""
                                         , value = model.label
                                         , setter = \string m -> { m | label = string }
                                         }
-                              , note = "A progress element can contain a label"
-                              }
-                            ]
-                      }
-                    ]
-                }
-            ]
+                          , note = "A progress element can contain a label"
+                          }
+                        ]
+                  }
+                ]
+            }
+        ]

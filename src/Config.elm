@@ -1,6 +1,16 @@
-module Config exposing (Config(..), Msg, configToField, update)
+module Config exposing
+    ( Msg, update
+    , string, bool, radio, select, counter
+    )
 
-import Html.Styled as Html exposing (Html, div, input, label, select, text)
+{-|
+
+@docs Msg, update
+@docs string, bool, radio, select, counter
+
+-}
+
+import Html.Styled as Html exposing (Html, div, input, label, text)
 import Html.Styled.Attributes exposing (checked, for, id, name, selected, type_, value)
 import Html.Styled.Events exposing (onClick, onInput)
 import UI.Button exposing (button, labeledButton)
@@ -32,89 +42,97 @@ update msg =
             f
 
 
-type Config model option msg
-    = String
-        { label : String
-        , value : String
-        , setter : String -> model -> model
+string :
+    { label : String
+    , value : String
+    , setter : String -> model -> model
+    }
+    -> Html (Msg model)
+string c =
+    Input.input []
+        [ if c.label /= "" then
+            div [] [ text c.label ]
+
+          else
+            text ""
+        , input [ type_ "text", value c.value, onInput (c.setter >> UpdateString) ] []
+        ]
+
+
+bool :
+    { id : String
+    , label : String
+    , bool : Bool
+    , setter : model -> model
+    }
+    -> Html (Msg model)
+bool c =
+    Checkbox.checkbox
+        { id = c.id
+        , label = c.label
+        , checked = c.bool
+        , onClick = UpdateBool c.setter
         }
-    | Bool
-        { id : String
-        , label : String
-        , bool : Bool
-        , setter : model -> model
-        }
-    | Radio
-        { name : String
-        , value : option
-        , options : List option
-        , fromString : String -> Maybe option
-        , toString : option -> String
-        , setter : option -> model -> model
-        }
-    | Select
-        { value : option
-        , options : List option
-        , fromString : String -> Maybe option
-        , toString : option -> String
-        , setter : option -> model -> model
-        }
-    | Counter { value : Float, toString : Float -> String, onClickPlus : msg, onClickMinus : msg }
 
 
-configToField : (Msg model -> msg) -> Config model state msg -> Html msg
-configToField msg config =
-    case config of
-        String c ->
-            Input.input []
-                [ if c.label /= "" then
-                    div [] [ text c.label ]
+select :
+    { value : option
+    , options : List option
+    , fromString : String -> Maybe option
+    , toString : option -> String
+    , setter : option -> model -> model
+    }
+    -> Html (Msg model)
+select c =
+    Html.select [ onInput (c.fromString >> Maybe.withDefault c.value >> c.setter >> UpdateSelect) ]
+        (List.map (\option -> Html.option [ value (c.toString option), selected (c.value == option) ] [ text (c.toString option) ])
+            c.options
+        )
 
-                  else
-                    text ""
-                , input [ type_ "text", value c.value, onInput (c.setter >> UpdateString >> msg) ] []
-                ]
 
-        Bool c ->
-            Checkbox.checkbox
-                { id = c.id
-                , label = c.label
-                , checked = c.bool
-                , onClick = msg (UpdateBool c.setter)
-                }
+radio :
+    { name : String
+    , value : option
+    , options : List option
+    , fromString : String -> Maybe option
+    , toString : option -> String
+    , setter : option -> model -> model
+    }
+    -> Html (Msg model)
+radio c =
+    div [] <|
+        List.map
+            (\option ->
+                let
+                    prefixedId =
+                        c.name ++ "_" ++ c.toString option
+                in
+                div []
+                    [ input
+                        [ id prefixedId
+                        , type_ "radio"
+                        , name c.name
+                        , value (c.toString option)
+                        , checked (c.value == option)
+                        , onInput (c.fromString >> Maybe.withDefault c.value >> c.setter >> UpdateRadio)
+                        ]
+                        []
+                    , label [ for prefixedId ] [ text (c.toString option) ]
+                    ]
+            )
+            c.options
 
-        Radio c ->
-            div [] <|
-                List.map
-                    (\option ->
-                        let
-                            prefixedId =
-                                c.name ++ "_" ++ c.toString option
-                        in
-                        div []
-                            [ input
-                                [ id prefixedId
-                                , type_ "radio"
-                                , name c.name
-                                , value (c.toString option)
-                                , checked (c.value == option)
-                                , onInput (c.fromString >> Maybe.withDefault c.value >> c.setter >> UpdateRadio >> msg)
-                                ]
-                                []
-                            , label [ for prefixedId ] [ text (c.toString option) ]
-                            ]
-                    )
-                    c.options
 
-        Select c ->
-            select [ onInput (c.fromString >> Maybe.withDefault c.value >> c.setter >> UpdateSelect >> msg) ]
-                (List.map (\option -> Html.option [ value (c.toString option), selected (c.value == option) ] [ text (c.toString option) ])
-                    c.options
-                )
-
-        Counter c ->
-            labeledButton []
-                [ button [ onClick c.onClickMinus ] [ text "-" ]
-                , basicLabel [] [ text (c.toString c.value) ]
-                , button [ onClick c.onClickPlus ] [ text "+" ]
-                ]
+counter :
+    { value : Float
+    , toString : Float -> String
+    , onClickPlus : msg
+    , onClickMinus : msg
+    }
+    -> Html msg
+counter c =
+    labeledButton []
+        [ button [ onClick c.onClickMinus ] [ text "-" ]
+        , basicLabel [] [ text (c.toString c.value) ]
+        , button [ onClick c.onClickPlus ] [ text "+" ]
+        ]

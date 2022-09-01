@@ -1,6 +1,5 @@
 module ConfigAndPreview exposing (configAndPreview)
 
-import Config exposing (Config(..), configToField)
 import Css exposing (..)
 import Data.Theme exposing (Theme(..))
 import Html.Styled as Html exposing (Html, aside, div, label, p, text)
@@ -8,20 +7,19 @@ import Html.Styled.Attributes exposing (css)
 import UI.Header as Header
 
 
-type alias ConfigSection model option msg =
+type alias ConfigSection msg =
     { label : String
-    , configs : List { label : String, config : Config model option msg, note : String }
+    , configs : List { label : String, config : Html msg, note : String }
     }
 
 
 configAndPreview :
     { title : String
     , preview : List (Html msg)
-    , configSets : List (ConfigSection model option msg)
+    , configSets : List (ConfigSection msg)
     }
-    -> (Config.Msg model -> msg)
     -> Html msg
-configAndPreview { title, preview, configSets } msg =
+configAndPreview { title, preview, configSets } =
     let
         title_ =
             if title == "" then
@@ -46,13 +44,13 @@ configAndPreview { title, preview, configSets } msg =
                 ]
             ]
             [ div [ css [ width (pct 100) ] ] preview
-            , configPanel msg configSets
+            , configPanel configSets
             ]
         ]
 
 
-configPanel : (Config.Msg model -> msg) -> List (ConfigSection model option msg) -> Html msg
-configPanel msg configSets =
+configPanel : List (ConfigSection msg) -> Html msg
+configPanel configSets =
     aside
         [ css
             [ paddingLeft (px 15)
@@ -84,7 +82,7 @@ configPanel msg configSets =
                             (\field ->
                                 div [ css [ displayFlex, flexDirection column, property "gap" "5px" ] ]
                                     [ label [] [ text field.label ]
-                                    , configToField msg field.config
+                                    , field.config
                                     , p [ css [ color (hex "#999") ] ] [ text field.note ]
                                     ]
                             )
