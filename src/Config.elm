@@ -20,26 +20,12 @@ import UI.Label exposing (basicLabel)
 
 
 type Msg model
-    = UpdateString (model -> model)
-    | UpdateBool (model -> model)
-    | UpdateRadio (model -> model)
-    | UpdateSelect (model -> model)
+    = Update (model -> model)
 
 
 update : Msg model -> model -> model
-update msg =
-    case msg of
-        UpdateString f ->
-            f
-
-        UpdateBool f ->
-            f
-
-        UpdateRadio f ->
-            f
-
-        UpdateSelect f ->
-            f
+update (Update f) =
+    f
 
 
 string :
@@ -55,7 +41,7 @@ string c =
 
           else
             text ""
-        , input [ type_ "text", value c.value, onInput (c.setter >> UpdateString) ] []
+        , input [ type_ "text", value c.value, onInput (c.setter >> Update) ] []
         ]
 
 
@@ -71,7 +57,7 @@ bool c =
         { id = c.id
         , label = c.label
         , checked = c.bool
-        , onClick = UpdateBool c.setter
+        , onClick = Update c.setter
         }
 
 
@@ -84,7 +70,7 @@ select :
     }
     -> Html (Msg model)
 select c =
-    Html.select [ onInput (c.fromString >> Maybe.withDefault c.value >> c.setter >> UpdateSelect) ]
+    Html.select [ onInput (c.fromString >> Maybe.withDefault c.value >> c.setter >> Update) ]
         (List.map (\option -> Html.option [ value (c.toString option), selected (c.value == option) ] [ text (c.toString option) ])
             c.options
         )
@@ -114,7 +100,7 @@ radio c =
                         , name c.name
                         , value (c.toString option)
                         , checked (c.value == option)
-                        , onInput (c.fromString >> Maybe.withDefault c.value >> c.setter >> UpdateRadio)
+                        , onInput (c.fromString >> Maybe.withDefault c.value >> c.setter >> Update)
                         ]
                         []
                     , label [ for prefixedId ] [ text (c.toString option) ]
