@@ -120,7 +120,7 @@ view : Model -> Html Msg
 view model =
     skeleton model
         { changeThemeMsg = ChangeTheme }
-        [ configAndPreview
+        [ configAndPreview UpdateConfig
             { title = "Progress"
             , preview =
                 [ Progress.progressWithProps
@@ -131,16 +131,15 @@ view model =
                     , state = model.state
                     }
                 ]
-            , configSets =
+            , configSections =
                 [ { label = "Bar"
                   , configs =
                         [ { label = ""
                           , config =
-                                Html.map UpdateConfig <|
-                                    Config.counter
-                                        { value = model.progressValue
-                                        , toString = \value -> String.fromFloat value ++ "%"
-                                        }
+                                Config.counter
+                                    { value = model.progressValue
+                                    , toString = \value -> String.fromFloat value ++ "%"
+                                    }
                           , note = "A progress element can contain a bar visually indicating progress"
                           }
                         ]
@@ -149,28 +148,27 @@ view model =
                   , configs =
                         [ { label = ""
                           , config =
-                                Html.map UpdateConfig <|
-                                    Config.bool
-                                        { id = "indicating"
-                                        , label = "Indicating"
-                                        , bool = model.indicating
-                                        , setter =
-                                            \m ->
-                                                let
-                                                    newIndicating =
-                                                        not m.indicating
-                                                in
-                                                { m
-                                                    | indicating = newIndicating
-                                                    , label =
-                                                        if newIndicating then
-                                                            m.label
+                                Config.bool
+                                    { id = "indicating"
+                                    , label = "Indicating"
+                                    , bool = model.indicating
+                                    , setter =
+                                        \m ->
+                                            let
+                                                newIndicating =
+                                                    not m.indicating
+                                            in
+                                            { m
+                                                | indicating = newIndicating
+                                                , label =
+                                                    if newIndicating then
+                                                        m.label
 
-                                                        else
-                                                            "Uploading Files"
-                                                }
-                                                    |> updatelabelOnIndicating
-                                        }
+                                                    else
+                                                        "Uploading Files"
+                                            }
+                                                |> updatelabelOnIndicating
+                                    }
                           , note = "An indicating progress bar visually indicates the current level of progress of a task"
                           }
                         ]
@@ -179,31 +177,30 @@ view model =
                   , configs =
                         [ { label = ""
                           , config =
-                                Html.map UpdateConfig <|
-                                    Config.select
-                                        { value = model.state
-                                        , options = [ Default, Active, Success, Warning, Error, Disabled ]
-                                        , fromString = Progress.stateFromString
-                                        , toString = Progress.stateToString
-                                        , setter =
-                                            \state m ->
-                                                { m
-                                                    | state = state
-                                                    , label =
-                                                        case state of
-                                                            Success ->
-                                                                "Everything worked, your file is all ready."
+                                Config.select
+                                    { value = model.state
+                                    , options = [ Default, Active, Success, Warning, Error, Disabled ]
+                                    , fromString = Progress.stateFromString
+                                    , toString = Progress.stateToString
+                                    , setter =
+                                        \state m ->
+                                            { m
+                                                | state = state
+                                                , label =
+                                                    case state of
+                                                        Success ->
+                                                            "Everything worked, your file is all ready."
 
-                                                            Warning ->
-                                                                "Your file didn't meet the minimum resolution requirements."
+                                                        Warning ->
+                                                            "Your file didn't meet the minimum resolution requirements."
 
-                                                            Error ->
-                                                                "There was an error."
+                                                        Error ->
+                                                            "There was an error."
 
-                                                            _ ->
-                                                                m.label
-                                                }
-                                        }
+                                                        _ ->
+                                                            m.label
+                                            }
+                                    }
                           , note =
                                 case model.state of
                                     Active ->
@@ -230,22 +227,20 @@ view model =
                   , configs =
                         [ { label = "Progress"
                           , config =
-                                Html.map UpdateConfig <|
-                                    Config.string
-                                        { label = ""
-                                        , value = model.progressLabel
-                                        , setter = \string m -> { m | progressLabel = string }
-                                        }
+                                Config.string
+                                    { label = ""
+                                    , value = model.progressLabel
+                                    , setter = \string m -> { m | progressLabel = string }
+                                    }
                           , note = "A progress bar can contain a text value indicating current progress"
                           }
                         , { label = "Label"
                           , config =
-                                Html.map UpdateConfig <|
-                                    Config.string
-                                        { label = ""
-                                        , value = model.label
-                                        , setter = \string m -> { m | label = string }
-                                        }
+                                Config.string
+                                    { label = ""
+                                    , value = model.label
+                                    , setter = \string m -> { m | label = string }
+                                    }
                           , note = "A progress element can contain a label"
                           }
                         ]

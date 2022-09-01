@@ -95,7 +95,7 @@ view model =
     in
     skeleton model
         { changeThemeMsg = ChangeTheme }
-        [ configAndPreview
+        [ configAndPreview UpdateConfig
             { title = "Form"
             , preview =
                 [ form []
@@ -127,9 +127,9 @@ view model =
                     , button [ type_ "submit" ] [ text "Submit" ]
                     ]
                 ]
-            , configSets = []
+            , configSections = []
             }
-        , configAndPreview
+        , configAndPreview UpdateConfig
             { title = "Field"
             , preview =
                 [ form []
@@ -142,9 +142,9 @@ view model =
                         [ Form.input { state = Default } [ type_ "text" ] [] ]
                     ]
                 ]
-            , configSets = []
+            , configSections = []
             }
-        , configAndPreview
+        , configAndPreview UpdateConfig
             { title = "Fields"
             , preview =
                 [ form []
@@ -173,9 +173,9 @@ view model =
                         ]
                     ]
                 ]
-            , configSets = []
+            , configSections = []
             }
-        , configAndPreview
+        , configAndPreview UpdateConfig
             { title = ""
             , preview =
                 [ form []
@@ -204,9 +204,9 @@ view model =
                         ]
                     ]
                 ]
-            , configSets = []
+            , configSections = []
             }
-        , configAndPreview
+        , configAndPreview UpdateConfig
             { title = "Text Area"
             , preview =
                 [ form []
@@ -226,9 +226,9 @@ view model =
                         [ textarea { state = Default } [ rows 2 ] [] ]
                     ]
                 ]
-            , configSets = []
+            , configSections = []
             }
-        , configAndPreview
+        , configAndPreview UpdateConfig
             { title = "Checkbox"
             , preview =
                 [ form []
@@ -245,24 +245,23 @@ view model =
                         ]
                     ]
                 ]
-            , configSets = []
+            , configSections = []
             }
-        , configAndPreview
+        , configAndPreview UpdateConfig
             { title = "Form States"
             , preview = [ form [] (fieldsWithState { id = "state_example", state = model.state }) ]
-            , configSets =
+            , configSections =
                 [ { label = "Form States"
                   , configs =
                         [ { label = ""
                           , config =
-                                Html.map UpdateConfig <|
-                                    Config.select
-                                        { value = model.state
-                                        , options = [ Default, Error, Warning, Success, Info ]
-                                        , fromString = Form.stateFromString
-                                        , toString = Form.stateToString
-                                        , setter = \state m -> { m | state = state }
-                                        }
+                                Config.select
+                                    { value = model.state
+                                    , options = [ Default, Error, Warning, Success, Info ]
+                                    , fromString = Form.stateFromString
+                                    , toString = Form.stateToString
+                                    , setter = \state m -> { m | state = state }
+                                    }
                           , note =
                                 case model.state of
                                     Error ->

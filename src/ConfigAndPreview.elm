@@ -1,5 +1,6 @@
 module ConfigAndPreview exposing (configAndPreview)
 
+import Config
 import Css exposing (..)
 import Data.Theme exposing (Theme(..))
 import Html.Styled as Html exposing (Html, aside, div, label, p, text)
@@ -7,19 +8,21 @@ import Html.Styled.Attributes exposing (css)
 import UI.Header as Header
 
 
-type alias ConfigSection msg =
+type alias ConfigSection model =
     { label : String
-    , configs : List { label : String, config : Html msg, note : String }
+    , configs : List { label : String, config : Html (Config.Msg model), note : String }
     }
 
 
 configAndPreview :
-    { title : String
-    , preview : List (Html msg)
-    , configSets : List (ConfigSection msg)
-    }
+    (Config.Msg model -> msg)
+    ->
+        { title : String
+        , preview : List (Html msg)
+        , configSections : List (ConfigSection model)
+        }
     -> Html msg
-configAndPreview { title, preview, configSets } =
+configAndPreview msg { title, preview, configSections } =
     let
         title_ =
             if title == "" then
@@ -44,50 +47,51 @@ configAndPreview { title, preview, configSets } =
                 ]
             ]
             [ div [ css [ width (pct 100) ] ] preview
-            , configPanel configSets
+            , configPanel msg configSections
             ]
         ]
 
 
-configPanel : List (ConfigSection msg) -> Html msg
-configPanel configSets =
-    aside
-        [ css
-            [ paddingLeft (px 15)
-            , borderLeft3 (px 1) solid (hex "#DDD")
+configPanel : (Config.Msg model -> msg) -> List (ConfigSection model) -> Html msg
+configPanel msg configSections =
+    Html.map msg <|
+        aside
+            [ css
+                [ paddingLeft (px 15)
+                , borderLeft3 (px 1) solid (hex "#DDD")
+                ]
             ]
-        ]
-        (List.map
-            (\configSet ->
-                div
-                    [ css
-                        [ displayFlex
-                        , flexDirection column
-                        , property "gap" "15px"
-                        , paddingBottom (px 15)
-                        , nthChild "n+2"
-                            [ paddingTop (px 15)
-                            , borderTop3 (px 1) solid (hex "#DDD")
-                            ]
-                        ]
-                    ]
-                    (div
+            (List.map
+                (\configSection ->
+                    div
                         [ css
-                            [ fontWeight bold
-                            , empty [ display none ]
+                            [ displayFlex
+                            , flexDirection column
+                            , property "gap" "15px"
+                            , paddingBottom (px 15)
+                            , nthChild "n+2"
+                                [ paddingTop (px 15)
+                                , borderTop3 (px 1) solid (hex "#DDD")
+                                ]
                             ]
                         ]
-                        [ text configSet.label ]
-                        :: List.map
-                            (\field ->
-                                div [ css [ displayFlex, flexDirection column, property "gap" "5px" ] ]
-                                    [ label [] [ text field.label ]
-                                    , field.config
-                                    , p [ css [ color (hex "#999") ] ] [ text field.note ]
-                                    ]
-                            )
-                            configSet.configs
-                    )
+                        (div
+                            [ css
+                                [ fontWeight bold
+                                , empty [ display none ]
+                                ]
+                            ]
+                            [ text configSection.label ]
+                            :: List.map
+                                (\field ->
+                                    div [ css [ displayFlex, flexDirection column, property "gap" "5px" ] ]
+                                        [ label [] [ text field.label ]
+                                        , field.config
+                                        , p [ css [ color (hex "#999") ] ] [ text field.note ]
+                                        ]
+                                )
+                                configSection.configs
+                        )
+                )
+                configSections
             )
-            configSets
-        )

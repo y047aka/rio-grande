@@ -100,7 +100,7 @@ view model =
                     Massive ->
                         massiveBreadCrumb
           in
-          configAndPreview
+          configAndPreview UpdateConfig
             { title = "Breadcrumb"
             , preview =
                 [ breadcrumb_ options
@@ -109,19 +109,18 @@ view model =
                     , { label = "T-Shirt", url = "" }
                     ]
                 ]
-            , configSets =
+            , configSections =
                 [ { label = "Content"
                   , configs =
                         [ { label = "Divider"
                           , config =
-                                Html.map UpdateConfig <|
-                                    Config.select
-                                        { value = model.divider
-                                        , options = [ Slash, RightChevron ]
-                                        , fromString = dividerFromString
-                                        , toString = dividerToString
-                                        , setter = \divider m -> { m | divider = divider }
-                                        }
+                                Config.select
+                                    { value = model.divider
+                                    , options = [ Slash, RightChevron ]
+                                    , fromString = dividerFromString
+                                    , toString = dividerToString
+                                    , setter = \divider m -> { m | divider = divider }
+                                    }
                           , note = "A breadcrumb can contain a divider to show the relationship between sections, this can be formatted as an icon or text."
                           }
                         ]
@@ -130,21 +129,20 @@ view model =
                   , configs =
                         [ { label = "Size"
                           , config =
-                                Html.map UpdateConfig <|
-                                    Config.select
-                                        { value = model.size
-                                        , options = [ Mini, Tiny, Small, Medium, Large, Big, Huge, Massive ]
-                                        , fromString = sizeFromString
-                                        , toString = sizeToString
-                                        , setter = \size m -> { m | size = size }
-                                        }
+                                Config.select
+                                    { value = model.size
+                                    , options = [ Mini, Tiny, Small, Medium, Large, Big, Huge, Massive ]
+                                    , fromString = sizeFromString
+                                    , toString = sizeToString
+                                    , setter = \size m -> { m | size = size }
+                                    }
                           , note = "A breadcrumb can vary in size"
                           }
                         ]
                   }
                 ]
             }
-        , configAndPreview
+        , configAndPreview UpdateConfig
             { title = "Inverted"
             , preview =
                 [ segment { theme = Dark }
@@ -156,6 +154,6 @@ view model =
                         ]
                     ]
                 ]
-            , configSets = []
+            , configSections = []
             }
         ]
