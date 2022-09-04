@@ -3,7 +3,7 @@ module Breadcrumb exposing (main)
 import Browser
 import Config
 import ConfigAndPreview exposing (configAndPreview)
-import Data exposing (Size(..), sizeFromString, sizeToString)
+import Types exposing (Size(..), sizeFromString, sizeToString)
 import Data.Theme exposing (Theme(..))
 import Html.Styled as Html exposing (Html, toUnstyled)
 import Skeleton exposing (skeleton)

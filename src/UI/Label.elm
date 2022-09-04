@@ -20,7 +20,7 @@ import Css.Global exposing (children)
 import Css.Layout as Layout exposing (layout)
 import Css.Palette as Palette exposing (Palette, palette, setBackground, setColor, textColor)
 import Css.Typography as Typography exposing (setFontSize, setFontWeight, setLineHeight, setTextTransform, typography)
-import Data exposing (PresetColor(..))
+import Types exposing (PresetColor(..))
 import Data.PalettesByState as PalettesByState exposing (black, blue)
 import Html.Styled as Html exposing (Attribute, Html)
 

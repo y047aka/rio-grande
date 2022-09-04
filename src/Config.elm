@@ -13,6 +13,7 @@ module Config exposing
 import Html.Styled as Html exposing (Html, div, input, label, text)
 import Html.Styled.Attributes exposing (checked, for, id, name, selected, type_, value)
 import Html.Styled.Events exposing (onClick, onInput)
+import Types exposing (FormState(..))
 import UI.Button exposing (button, labeledButton)
 import UI.Checkbox as Checkbox
 import UI.Input as Input
@@ -119,11 +120,7 @@ radio c =
             c.options
 
 
-counter :
-    { value : Float
-    , toString : Float -> String
-    }
-    -> Html (Msg model)
+counter : { value : Float, toString : Float -> String } -> Html (Msg model)
 counter c =
     labeledButton []
         [ button [ onClick CounterMinus ] [ text "-" ]

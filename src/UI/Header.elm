@@ -18,7 +18,7 @@ import Css exposing (..)
 import Css.Global exposing (adjacentSiblings, children, typeSelector)
 import Css.Palette as Palette exposing (darkPalette, palette, setColor)
 import Css.Typography as Typography exposing (setFontSize, setFontWeight, setLineHeight, setTextTransform, typography)
-import Data exposing (Size(..))
+import Types exposing (Size(..))
 import Data.Theme exposing (Theme)
 import Html.Styled as Html exposing (Attribute, Html)
 
