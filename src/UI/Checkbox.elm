@@ -1,4 +1,4 @@
-module UI.Checkbox exposing (checkbox, checkboxWrapper, input, label, labelBasis)
+module UI.Checkbox exposing (checkbox, checkboxWithProps, toggleCheckbox)
 
 import Css exposing (..)
 import Css.Extra exposing (prefixed)
@@ -8,6 +8,29 @@ import Css.Typography as Typography exposing (setFontSize, setFontStyle, setLine
 import Html.Styled as Html exposing (Attribute, Html, text)
 import Html.Styled.Attributes as Attributes exposing (for, id, type_)
 import Html.Styled.Events exposing (onClick)
+import Types exposing (FormState(..))
+
+
+checkboxWithProps :
+    { id : String
+    , label : String
+    , checked : Bool
+    , state : FormState
+    , onClick : msg
+    }
+    -> Html msg
+checkboxWithProps props =
+    checkboxWrapper []
+        []
+        [ inputBasis []
+            [ id props.id
+            , type_ "checkbox"
+            , Attributes.checked props.checked
+            , onClick props.onClick
+            ]
+            []
+        , label { state = props.state } [ for props.id ] [ text props.label ]
+        ]
 
 
 checkbox :
@@ -17,21 +40,18 @@ checkbox :
     , onClick : msg
     }
     -> Html msg
-checkbox options =
-    checkboxWrapper []
-        [ input
-            [ id options.id
-            , type_ "checkbox"
-            , Attributes.checked options.checked
-            , onClick options.onClick
-            ]
-            []
-        , label [ for options.id ] [ text options.label ]
-        ]
+checkbox props =
+    checkboxWithProps
+        { id = props.id
+        , label = props.label
+        , checked = props.checked
+        , state = Default
+        , onClick = props.onClick
+        }
 
 
-checkboxWrapper : List (Attribute msg) -> List (Html msg) -> Html msg
-checkboxWrapper =
+checkboxWrapper : List Style -> List (Attribute msg) -> List (Html msg) -> Html msg
+checkboxWrapper additionalStyles =
     Html.styled Html.div
         [ -- .ui.checkbox
           position relative
@@ -47,11 +67,14 @@ checkboxWrapper =
                 |> setLineHeight (px 17)
             )
         , minWidth (px 17)
+
+        -- AdditionalStyles
+        , batch additionalStyles
         ]
 
 
-input : List (Attribute msg) -> List (Html msg) -> Html msg
-input =
+inputBasis : List Style -> List (Attribute msg) -> List (Html msg) -> Html msg
+inputBasis additionalStyles =
     Html.styled Html.input
         [ -- .ui.checkbox input[type="checkbox"]
           -- .ui.checkbox input[type="radio"]
@@ -118,6 +141,9 @@ input =
                     ]
                 ]
             ]
+
+        -- AdditionalStyles
+        , batch additionalStyles
         ]
 
 
@@ -201,11 +227,283 @@ labelBasis additionalStyles =
                 [ color (rgba 0 0 0 0.95) ]
             ]
 
+        -- .ui.checkbox input.hidden + label
+        , cursor pointer
+        , property "-webkit-user-select" "none"
+        , property "-moz-user-select" "none"
+        , property "-ms-user-select" "none"
+        , property "user-select" "none"
+
         -- AdditionalStyles
         , batch additionalStyles
         ]
 
 
-label : List (Attribute msg) -> List (Html msg) -> Html msg
-label =
-    labelBasis []
+label : { state : FormState } -> List (Attribute msg) -> List (Html msg) -> Html msg
+label { state } =
+    labelBasis
+        [ case state of
+            Success ->
+                -- .ui.form .fields.success .field .checkbox:not(.toggle):not(.slider) label
+                -- .ui.form .field.success .checkbox:not(.toggle):not(.slider) label
+                -- .ui.form .fields.success .field .checkbox:not(.toggle):not(.slider) .box
+                -- .ui.form .field.success .checkbox:not(.toggle):not(.slider) .box
+                color (hex "#2c662d")
+
+            Info ->
+                -- .ui.form .fields.info .field .checkbox:not(.toggle):not(.slider) label
+                -- .ui.form .field.info .checkbox:not(.toggle):not(.slider) label
+                -- .ui.form .fields.info .field .checkbox:not(.toggle):not(.slider) .box
+                -- .ui.form .field.info .checkbox:not(.toggle):not(.slider) .box
+                color (hex "#276f86")
+
+            Warning ->
+                -- .ui.form .fields.warning .field .checkbox:not(.toggle):not(.slider) label
+                -- .ui.form .field.warning .checkbox:not(.toggle):not(.slider) label
+                -- .ui.form .fields.warning .field .checkbox:not(.toggle):not(.slider) .box
+                -- .ui.form .field.warning .checkbox:not(.toggle):not(.slider) .box
+                color (hex "#573a08")
+
+            Error ->
+                -- .ui.form .fields.error .field .checkbox:not(.toggle):not(.slider) label
+                -- .ui.form .field.error .checkbox:not(.toggle):not(.slider) label
+                -- .ui.form .fields.error .field .checkbox:not(.toggle):not(.slider) .box
+                -- .ui.form .field.error .checkbox:not(.toggle):not(.slider) .box
+                color (hex "#9f3a38")
+
+            Default ->
+                batch []
+
+        --
+        , before
+            [ case state of
+                Success ->
+                    -- .ui.form .fields.success .field .checkbox:not(.toggle):not(.slider) label:before
+                    -- .ui.form .field.success .checkbox:not(.toggle):not(.slider) label:before
+                    -- .ui.form .fields.success .field .checkbox:not(.toggle):not(.slider) .box:before
+                    -- .ui.form .field.success .checkbox:not(.toggle):not(.slider) .box:before
+                    palette
+                        (Palette.init
+                            |> setBackground (hex "#fcfff5")
+                            |> setBorder (hex "#a3c293")
+                        )
+
+                Info ->
+                    -- .ui.form .fields.info .field .checkbox:not(.toggle):not(.slider) label:before
+                    -- .ui.form .field.info .checkbox:not(.toggle):not(.slider) label:before
+                    -- .ui.form .fields.info .field .checkbox:not(.toggle):not(.slider) .box:before
+                    -- .ui.form .field.info .checkbox:not(.toggle):not(.slider) .box:before
+                    palette
+                        (Palette.init
+                            |> setBackground (hex "#f8ffff")
+                            |> setBorder (hex "#a9d5de")
+                        )
+
+                Warning ->
+                    -- .ui.form .fields.warning .field .checkbox:not(.toggle):not(.slider) label:before
+                    -- .ui.form .field.warning .checkbox:not(.toggle):not(.slider) label:before
+                    -- .ui.form .fields.warning .field .checkbox:not(.toggle):not(.slider) .box:before
+                    -- .ui.form .field.warning .checkbox:not(.toggle):not(.slider) .box:before
+                    palette
+                        (Palette.init
+                            |> setBackground (hex "#fffaf3")
+                            |> setBorder (hex "#c9ba9b")
+                        )
+
+                Error ->
+                    -- .ui.form .fields.error .field .checkbox:not(.toggle):not(.slider) label:before
+                    -- .ui.form .field.error .checkbox:not(.toggle):not(.slider) label:before
+                    -- .ui.form .fields.error .field .checkbox:not(.toggle):not(.slider) .box:before
+                    -- .ui.form .field.error .checkbox:not(.toggle):not(.slider) .box:before
+                    palette
+                        (Palette.init
+                            |> setBackground (hex "#fff6f6")
+                            |> setBorder (hex "#e0b4b4")
+                        )
+
+                _ ->
+                    batch []
+            ]
+
+        --
+        , after
+            [ case state of
+                Success ->
+                    -- .ui.form .fields.success .field .checkbox label:after
+                    -- .ui.form .field.success .checkbox label:after
+                    -- .ui.form .fields.success .field .checkbox .box:after
+                    -- .ui.form .field.success .checkbox .box:after
+                    color (hex "#2c662d")
+
+                Info ->
+                    -- .ui.form .fields.info .field .checkbox label:after
+                    -- .ui.form .field.info .checkbox label:after
+                    -- .ui.form .fields.info .field .checkbox .box:after
+                    -- .ui.form .field.info .checkbox .box:after
+                    color (hex "#276f86")
+
+                Warning ->
+                    -- .ui.form .fields.warning .field .checkbox label:after
+                    -- .ui.form .field.warning .checkbox label:after
+                    -- .ui.form .fields.warning .field .checkbox .box:after
+                    -- .ui.form .field.warning .checkbox .box:after
+                    color (hex "#573a08")
+
+                Error ->
+                    -- .ui.form .fields.error .field .checkbox label:after
+                    -- .ui.form .field.error .checkbox label:after
+                    -- .ui.form .fields.error .field .checkbox .box:after
+                    -- .ui.form .field.error .checkbox .box:after
+                    color (hex "#9f3a38")
+
+                _ ->
+                    batch []
+            ]
+        ]
+
+
+toggleCheckbox :
+    { id : String
+    , label : String
+    , checked : Bool
+    , onClick : msg
+    }
+    -> Html msg
+toggleCheckbox props =
+    toggleWrapper []
+        [ toggleInput
+            [ id props.id
+            , type_ "checkbox"
+            , Attributes.checked props.checked
+            , onClick props.onClick
+            ]
+            []
+        , toggleLabel [ for props.id ] [ text props.label ]
+        ]
+
+
+toggleWrapper : List (Attribute msg) -> List (Html msg) -> Html msg
+toggleWrapper =
+    checkboxWrapper
+        [ -- .ui.toggle.checkbox
+          minHeight (rem 1.5)
+        ]
+
+
+toggleInput : List (Attribute msg) -> List (Html msg) -> Html msg
+toggleInput =
+    inputBasis
+        [ -- .ui.toggle.checkbox input
+          width (rem 3.5)
+        , height (rem 1.5)
+
+        -- .ui.toggle.checkbox input:focus ~ label:before
+        , focus
+            [ generalSiblings
+                [ Css.Global.label
+                    [ before
+                        [ backgroundColor (rgba 0 0 0 0.15)
+                        , property "border" "none"
+                        ]
+                    ]
+                ]
+            ]
+
+        -- .ui.toggle.checkbox input:checked ~ label
+        , checked
+            [ generalSiblings
+                [ Css.Global.label
+                    [ color (rgba 0 0 0 0.95) |> important
+
+                    -- .ui.toggle.checkbox input:checked ~ label:before
+                    , before
+                        [ backgroundColor (hex "#2185D0") |> important ]
+
+                    -- .ui.toggle.checkbox input:checked ~ label:after
+                    , after
+                        [ left (rem 2.15)
+                        , property "-webkit-box-shadow" "0 1px 2px 0 rgba(34, 36, 38, 0.15), 0 0 0 1px rgba(34, 36, 38, 0.15) inset"
+                        , property "box-shadow" "0 1px 2px 0 rgba(34, 36, 38, 0.15), 0 0 0 1px rgba(34, 36, 38, 0.15) inset"
+                        ]
+                    ]
+                ]
+
+            -- .ui.toggle.checkbox input:focus:checked ~ label
+            , focus
+                [ generalSiblings
+                    [ Css.Global.label
+                        [ color (rgba 0 0 0 0.95) |> important
+
+                        -- .ui.toggle.checkbox input:focus:checked ~ label:before
+                        , before
+                            [ backgroundColor (hex "#0d71bb") |> important ]
+                        ]
+                    ]
+                ]
+            ]
+        ]
+
+
+toggleLabel : List (Attribute msg) -> List (Html msg) -> Html msg
+toggleLabel =
+    labelBasis
+        [ -- .ui.toggle.checkbox label
+          minHeight (rem 1.5)
+        , paddingLeft (rem 4.5)
+        , color (rgba 0 0 0 0.87)
+
+        -- .ui.toggle.checkbox label
+        , paddingTop (em 0.15)
+
+        -- .ui.toggle.checkbox label:before
+        , before
+            [ display block
+            , position absolute
+            , property "content" "''"
+            , zIndex (int 1)
+            , property "-webkit-transform" "none"
+            , property "transform" "none"
+            , property "border" "none"
+            , top zero
+            , backgroundColor (rgba 0 0 0 0.05)
+            , property "-webkit-box-shadow" "none"
+            , property "box-shadow" "none"
+            , width (rem 3.5)
+            , height (rem 1.5)
+            , borderRadius (rem 500)
+            ]
+
+        -- .ui.toggle.checkbox label:after
+        , after
+            [ property "background" "#FFFFFF -webkit-gradient(linear, left top, left bottom, from(transparent), to(rgba(0, 0, 0, 0.05)))"
+            , property "background" "#FFFFFF -webkit-linear-gradient(transparent, rgba(0, 0, 0, 0.05))"
+            , property "background" "#FFFFFF linear-gradient(transparent, rgba(0, 0, 0, 0.05))"
+            , position absolute
+            , property "content" "''" |> important
+            , opacity (int 1)
+            , zIndex (int 2)
+            , property "border" "none"
+            , property "-webkit-box-shadow" "0 1px 2px 0 rgba(34, 36, 38, 0.15), 0 0 0 1px rgba(34, 36, 38, 0.15) inset"
+            , property "box-shadow" "0 1px 2px 0 rgba(34, 36, 38, 0.15), 0 0 0 1px rgba(34, 36, 38, 0.15) inset"
+            , width (rem 1.5)
+            , height (rem 1.5)
+            , top zero
+            , left zero
+            , borderRadius (rem 500)
+            , property "-webkit-transition" "background 0.3s ease, left 0.3s ease"
+            , property "transition" "background 0.3s ease, left 0.3s ease"
+
+            -- .ui.toggle.checkbox input ~ label:after
+            , left (rem -0.05)
+            , property "-webkit-box-shadow" "0 1px 2px 0 rgba(34, 36, 38, 0.15), 0 0 0 1px rgba(34, 36, 38, 0.15) inset"
+            , property "box-shadow" "0 1px 2px 0 rgba(34, 36, 38, 0.15), 0 0 0 1px rgba(34, 36, 38, 0.15) inset"
+            ]
+
+        -- .ui.toggle.checkbox label:hover::before {
+        , hover
+            [ before
+                [ backgroundColor (rgba 0 0 0 0.15)
+                , property "border" "none"
+                ]
+            ]
+        ]

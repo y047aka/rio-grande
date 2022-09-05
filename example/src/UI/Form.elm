@@ -1,12 +1,9 @@
 module UI.Form exposing
-    ( State(..)
-    , form
+    ( form
     , fields, twoFields, threeFields
     , field
     , label
     , input, textarea
-    , checkboxLabel
-    , stateFromString, stateToString
     )
 
 {-|
@@ -17,9 +14,6 @@ module UI.Form exposing
 @docs field
 @docs label
 @docs input, textarea
-@docs checkboxLabel
-
-@docs stateFromString, stateToString
 
 -}
 
@@ -30,21 +24,13 @@ import Css.Media as Media exposing (only, screen, withMedia)
 import Css.Palette as Palette exposing (palette, paletteWith, setBackground, setBorder, setColor, setShadow)
 import Css.Typography as Typography exposing (setFontSize, setFontWeight, setLineHeight, setTextTransform, typography)
 import Html.Styled as Html exposing (Attribute, Html, text)
-import UI.Checkbox
+import Types exposing (FormState(..))
 
 
 type FieldType
     = Text String
     | Textarea
     | Checkbox
-
-
-type State
-    = Default
-    | Success
-    | Info
-    | Warning
-    | Error
 
 
 form : List (Attribute msg) -> List (Html msg) -> Html msg
@@ -149,7 +135,7 @@ threeFields =
     equallyDivideFields 3
 
 
-fieldBasis : State -> List (Attribute msg) -> List (Html msg) -> Html msg
+fieldBasis : FormState -> List (Attribute msg) -> List (Html msg) -> Html msg
 fieldBasis state =
     Html.styled Html.div
         [ -- .ui.form .field
@@ -164,7 +150,7 @@ fieldBasis state =
         ]
 
 
-field : { type_ : String, label : String, state : State } -> List (Attribute msg) -> List (Html msg) -> Html msg
+field : { type_ : String, label : String, state : FormState } -> List (Attribute msg) -> List (Html msg) -> Html msg
 field options attributes children =
     let
         fieldType =
@@ -183,7 +169,7 @@ field options attributes children =
         (label_ :: children)
 
 
-label : { state : State } -> List (Attribute msg) -> List (Html msg) -> Html msg
+label : { state : FormState } -> List (Attribute msg) -> List (Html msg) -> Html msg
 label { state } =
     Html.styled Html.label
         [ -- .ui.form .field > label
@@ -202,7 +188,7 @@ label { state } =
         ]
 
 
-input : { state : State } -> List (Attribute msg) -> List (Html msg) -> Html msg
+input : { state : FormState } -> List (Attribute msg) -> List (Html msg) -> Html msg
 input { state } =
     -- .ui.form input:not([type])
     -- .ui.form input[type="date"]
@@ -259,7 +245,7 @@ input { state } =
         ]
 
 
-textarea : { state : State } -> List (Attribute msg) -> List (Html msg) -> Html msg
+textarea : { state : FormState } -> List (Attribute msg) -> List (Html msg) -> Html msg
 textarea { state } =
     Html.styled Html.textarea
         [ -- .ui.form textarea
@@ -315,129 +301,6 @@ textarea { state } =
         ]
 
 
-checkboxLabel : { state : State } -> List (Attribute msg) -> List (Html msg) -> Html msg
-checkboxLabel { state } =
-    UI.Checkbox.labelBasis
-        [ case state of
-            Success ->
-                -- .ui.form .fields.success .field .checkbox:not(.toggle):not(.slider) label
-                -- .ui.form .field.success .checkbox:not(.toggle):not(.slider) label
-                -- .ui.form .fields.success .field .checkbox:not(.toggle):not(.slider) .box
-                -- .ui.form .field.success .checkbox:not(.toggle):not(.slider) .box
-                color (hex "#2c662d")
-
-            Info ->
-                -- .ui.form .fields.info .field .checkbox:not(.toggle):not(.slider) label
-                -- .ui.form .field.info .checkbox:not(.toggle):not(.slider) label
-                -- .ui.form .fields.info .field .checkbox:not(.toggle):not(.slider) .box
-                -- .ui.form .field.info .checkbox:not(.toggle):not(.slider) .box
-                color (hex "#276f86")
-
-            Warning ->
-                -- .ui.form .fields.warning .field .checkbox:not(.toggle):not(.slider) label
-                -- .ui.form .field.warning .checkbox:not(.toggle):not(.slider) label
-                -- .ui.form .fields.warning .field .checkbox:not(.toggle):not(.slider) .box
-                -- .ui.form .field.warning .checkbox:not(.toggle):not(.slider) .box
-                color (hex "#573a08")
-
-            Error ->
-                -- .ui.form .fields.error .field .checkbox:not(.toggle):not(.slider) label
-                -- .ui.form .field.error .checkbox:not(.toggle):not(.slider) label
-                -- .ui.form .fields.error .field .checkbox:not(.toggle):not(.slider) .box
-                -- .ui.form .field.error .checkbox:not(.toggle):not(.slider) .box
-                color (hex "#9f3a38")
-
-            Default ->
-                batch []
-
-        --
-        , before
-            [ case state of
-                Success ->
-                    -- .ui.form .fields.success .field .checkbox:not(.toggle):not(.slider) label:before
-                    -- .ui.form .field.success .checkbox:not(.toggle):not(.slider) label:before
-                    -- .ui.form .fields.success .field .checkbox:not(.toggle):not(.slider) .box:before
-                    -- .ui.form .field.success .checkbox:not(.toggle):not(.slider) .box:before
-                    palette
-                        (Palette.init
-                            |> setBackground (hex "#fcfff5")
-                            |> setBorder (hex "#a3c293")
-                        )
-
-                Info ->
-                    -- .ui.form .fields.info .field .checkbox:not(.toggle):not(.slider) label:before
-                    -- .ui.form .field.info .checkbox:not(.toggle):not(.slider) label:before
-                    -- .ui.form .fields.info .field .checkbox:not(.toggle):not(.slider) .box:before
-                    -- .ui.form .field.info .checkbox:not(.toggle):not(.slider) .box:before
-                    palette
-                        (Palette.init
-                            |> setBackground (hex "#f8ffff")
-                            |> setBorder (hex "#a9d5de")
-                        )
-
-                Warning ->
-                    -- .ui.form .fields.warning .field .checkbox:not(.toggle):not(.slider) label:before
-                    -- .ui.form .field.warning .checkbox:not(.toggle):not(.slider) label:before
-                    -- .ui.form .fields.warning .field .checkbox:not(.toggle):not(.slider) .box:before
-                    -- .ui.form .field.warning .checkbox:not(.toggle):not(.slider) .box:before
-                    palette
-                        (Palette.init
-                            |> setBackground (hex "#fffaf3")
-                            |> setBorder (hex "#c9ba9b")
-                        )
-
-                Error ->
-                    -- .ui.form .fields.error .field .checkbox:not(.toggle):not(.slider) label:before
-                    -- .ui.form .field.error .checkbox:not(.toggle):not(.slider) label:before
-                    -- .ui.form .fields.error .field .checkbox:not(.toggle):not(.slider) .box:before
-                    -- .ui.form .field.error .checkbox:not(.toggle):not(.slider) .box:before
-                    palette
-                        (Palette.init
-                            |> setBackground (hex "#fff6f6")
-                            |> setBorder (hex "#e0b4b4")
-                        )
-
-                _ ->
-                    batch []
-            ]
-
-        --
-        , after
-            [ case state of
-                Success ->
-                    -- .ui.form .fields.success .field .checkbox label:after
-                    -- .ui.form .field.success .checkbox label:after
-                    -- .ui.form .fields.success .field .checkbox .box:after
-                    -- .ui.form .field.success .checkbox .box:after
-                    color (hex "#2c662d")
-
-                Info ->
-                    -- .ui.form .fields.info .field .checkbox label:after
-                    -- .ui.form .field.info .checkbox label:after
-                    -- .ui.form .fields.info .field .checkbox .box:after
-                    -- .ui.form .field.info .checkbox .box:after
-                    color (hex "#276f86")
-
-                Warning ->
-                    -- .ui.form .fields.warning .field .checkbox label:after
-                    -- .ui.form .field.warning .checkbox label:after
-                    -- .ui.form .fields.warning .field .checkbox .box:after
-                    -- .ui.form .field.warning .checkbox .box:after
-                    color (hex "#573a08")
-
-                Error ->
-                    -- .ui.form .fields.error .field .checkbox label:after
-                    -- .ui.form .field.error .checkbox label:after
-                    -- .ui.form .fields.error .field .checkbox .box:after
-                    -- .ui.form .field.error .checkbox .box:after
-                    color (hex "#9f3a38")
-
-                _ ->
-                    batch []
-            ]
-        ]
-
-
 fromString : String -> FieldType
 fromString type_ =
     case type_ of
@@ -451,7 +314,7 @@ fromString type_ =
             Text type_
 
 
-colorByState : State -> Style
+colorByState : FormState -> Style
 colorByState state =
     case state of
         Success ->
@@ -486,7 +349,7 @@ colorByState state =
             batch []
 
 
-stylesByState : State -> List Style
+stylesByState : FormState -> List Style
 stylesByState state =
     let
         paletteByState =
@@ -534,48 +397,3 @@ stylesByState state =
         , prefixed [] "box-shadow" "none"
         ]
     ]
-
-
-
--- HELPER
-
-
-stateFromString : String -> Maybe State
-stateFromString string =
-    case string of
-        "Default" ->
-            Just Default
-
-        "Success" ->
-            Just Success
-
-        "Info" ->
-            Just Info
-
-        "Warning" ->
-            Just Warning
-
-        "Error" ->
-            Just Error
-
-        _ ->
-            Nothing
-
-
-stateToString : State -> String
-stateToString state =
-    case state of
-        Default ->
-            "Default"
-
-        Success ->
-            "Success"
-
-        Info ->
-            "Info"
-
-        Warning ->
-            "Warning"
-
-        Error ->
-            "Error"

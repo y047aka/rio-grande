@@ -5,11 +5,12 @@ import Config
 import ConfigAndPreview exposing (configAndPreview)
 import Data.Theme exposing (Theme(..))
 import Html.Styled as Html exposing (Html, text, toUnstyled)
-import Html.Styled.Attributes exposing (for, id, name, placeholder, rows, tabindex, type_)
+import Html.Styled.Attributes exposing (placeholder, rows, type_)
 import Skeleton exposing (skeleton)
+import Types exposing (FormState(..), formStateFromString, formStateToString)
 import UI.Button exposing (button)
-import UI.Checkbox as Checkbox exposing (checkboxWrapper)
-import UI.Form as Form exposing (State(..), checkboxLabel, field, fields, form, textarea, threeFields, twoFields)
+import UI.Checkbox as Checkbox
+import UI.Form as Form exposing (field, fields, form, textarea, threeFields, twoFields)
 
 
 main : Program () Model Msg
@@ -23,16 +24,22 @@ main =
 
 
 
--- MODEL
+-- INIT
 
 
 type alias Model =
-    { theme : Theme, state : State }
+    { theme : Theme
+    , checked : Bool
+    , state : FormState
+    }
 
 
 init : flags -> ( Model, Cmd Msg )
 init _ =
-    ( { theme = System, state = Error }
+    ( { theme = System
+      , checked = False
+      , state = Error
+      }
     , Cmd.none
     )
 
@@ -43,6 +50,7 @@ init _ =
 
 type Msg
     = ChangeTheme Theme
+    | ToggleChecked
     | UpdateConfig (Config.Msg Model)
 
 
@@ -51,6 +59,9 @@ update msg model =
     case msg of
         ChangeTheme theme ->
             ( { model | theme = theme }, Cmd.none )
+
+        ToggleChecked ->
+            ( { model | checked = not model.checked }, Cmd.none )
 
         UpdateConfig configMsg ->
             ( Config.update configMsg model, Cmd.none )
@@ -62,72 +73,77 @@ update msg model =
 
 view : Model -> Html Msg
 view model =
-    let
-        fieldsWithState options =
-            [ twoFields []
-                [ field
-                    { type_ = "text"
-                    , label = "First Name"
-                    , state = options.state
-                    }
-                    []
-                    [ Form.input { state = options.state } [ type_ "text", placeholder "First Name" ] [] ]
-                , field
-                    { type_ = "text"
-                    , label = "Last Name"
-                    , state = Default
-                    }
-                    []
-                    [ Form.input { state = Default } [ type_ "text", placeholder "Last Name" ] [] ]
-                ]
-            , field
-                { type_ = "checkbox"
-                , label = ""
-                , state = options.state
-                }
-                []
-                [ checkboxWrapper []
-                    [ Checkbox.input [ id options.id, type_ "checkbox", tabindex 0 ] []
-                    , checkboxLabel { state = options.state } [ for options.id ] [ text "I agree to the Terms and Conditions" ]
-                    ]
-                ]
-            ]
-    in
     skeleton model
         { changeThemeMsg = ChangeTheme }
         [ configAndPreview UpdateConfig
             { title = "Form"
             , preview =
                 [ form []
-                    [ field
-                        { type_ = "text"
-                        , label = "First Name"
-                        , state = Default
-                        }
-                        []
-                        [ Form.input { state = Default } [ type_ "text", name "first-name", placeholder "First Name" ] [] ]
-                    , field
-                        { type_ = "text"
-                        , label = "Last Name"
-                        , state = Default
-                        }
-                        []
-                        [ Form.input { state = Default } [ type_ "text", name "last-name", placeholder "Last Name" ] [] ]
+                    [ twoFields []
+                        [ field
+                            { type_ = "text"
+                            , label = "First Name"
+                            , state = model.state
+                            }
+                            []
+                            [ Form.input { state = model.state } [ type_ "text", placeholder "First Name" ] [] ]
+                        , field
+                            { type_ = "text"
+                            , label = "Last Name"
+                            , state = Default
+                            }
+                            []
+                            [ Form.input { state = Default } [ type_ "text", placeholder "Last Name" ] [] ]
+                        ]
                     , field
                         { type_ = "checkbox"
                         , label = ""
-                        , state = Default
+                        , state = model.state
                         }
                         []
-                        [ checkboxWrapper []
-                            [ Checkbox.input [ id "checkbox_example_1", type_ "checkbox", tabindex 0 ] []
-                            , checkboxLabel { state = Default } [ for "checkbox_example_1" ] [ text "I agree to the Terms and Conditions" ]
-                            ]
+                        [ Checkbox.checkboxWithProps
+                            { id = "state_example"
+                            , label = "I agree to the Terms and Conditions"
+                            , checked = model.checked
+                            , state = model.state
+                            , onClick = ToggleChecked
+                            }
                         ]
                     , button [ type_ "submit" ] [ text "Submit" ]
                     ]
                 ]
-            , configSections = []
+            , configSections =
+                [ { label = "Form States"
+                  , configs =
+                        [ { label = ""
+                          , config =
+                                Config.select
+                                    { value = model.state
+                                    , options = [ Default, Error, Warning, Success, Info ]
+                                    , fromString = formStateFromString
+                                    , toString = formStateToString
+                                    , setter = \state m -> { m | state = state }
+                                    }
+                          , note =
+                                case model.state of
+                                    Error ->
+                                        "Individual fields may display an error state"
+
+                                    Warning ->
+                                        "Individual fields may display a warning state"
+
+                                    Success ->
+                                        "Individual fields may display a Success state"
+
+                                    Info ->
+                                        "Individual fields may display an informational state"
+
+                                    Default ->
+                                        ""
+                          }
+                        ]
+                  }
+                ]
             }
         , configAndPreview UpdateConfig
             { title = "Field"
@@ -238,49 +254,15 @@ view model =
                         , state = Default
                         }
                         []
-                        [ checkboxWrapper []
-                            [ Checkbox.input [ id "checkbox_example_2", type_ "checkbox", tabindex 0 ] []
-                            , checkboxLabel { state = Default } [ for "checkbox_example_2" ] [ text "Checkbox" ]
-                            ]
+                        [ Checkbox.checkbox
+                            { id = "checkbox_example_2"
+                            , label = "Checkbox"
+                            , checked = model.checked
+                            , onClick = ToggleChecked
+                            }
                         ]
                     ]
                 ]
             , configSections = []
-            }
-        , configAndPreview UpdateConfig
-            { title = "Form States"
-            , preview = [ form [] (fieldsWithState { id = "state_example", state = model.state }) ]
-            , configSections =
-                [ { label = "Form States"
-                  , configs =
-                        [ { label = ""
-                          , config =
-                                Config.select
-                                    { value = model.state
-                                    , options = [ Default, Error, Warning, Success, Info ]
-                                    , fromString = Form.stateFromString
-                                    , toString = Form.stateToString
-                                    , setter = \state m -> { m | state = state }
-                                    }
-                          , note =
-                                case model.state of
-                                    Error ->
-                                        "Individual fields may display an error state"
-
-                                    Warning ->
-                                        "Individual fields may display a warning state"
-
-                                    Success ->
-                                        "Individual fields may display a Success state"
-
-                                    Info ->
-                                        "Individual fields may display an informational state"
-
-                                    Default ->
-                                        ""
-                          }
-                        ]
-                  }
-                ]
             }
         ]
