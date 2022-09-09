@@ -73,9 +73,8 @@ update msg model =
 
 view : Model -> Html Msg
 view model =
-    skeleton model
-        { changeThemeMsg = ChangeTheme }
-        [ configAndPreview UpdateConfig
+    skeleton { theme = model.theme, changeThemeMsg = ChangeTheme }
+        [ configAndPreview UpdateConfig { theme = model.theme } <|
             { title = "Form"
             , preview =
                 [ form []
@@ -145,7 +144,7 @@ view model =
                   }
                 ]
             }
-        , configAndPreview UpdateConfig
+        , configAndPreview UpdateConfig { theme = model.theme } <|
             { title = "Field"
             , preview =
                 [ form []
@@ -160,7 +159,7 @@ view model =
                 ]
             , configSections = []
             }
-        , configAndPreview UpdateConfig
+        , configAndPreview UpdateConfig { theme = model.theme } <|
             { title = "Fields"
             , preview =
                 [ form []
@@ -191,7 +190,7 @@ view model =
                 ]
             , configSections = []
             }
-        , configAndPreview UpdateConfig
+        , configAndPreview UpdateConfig { theme = model.theme } <|
             { title = ""
             , preview =
                 [ form []
@@ -222,7 +221,7 @@ view model =
                 ]
             , configSections = []
             }
-        , configAndPreview UpdateConfig
+        , configAndPreview UpdateConfig { theme = model.theme } <|
             { title = "Text Area"
             , preview =
                 [ form []
@@ -244,7 +243,7 @@ view model =
                 ]
             , configSections = []
             }
-        , configAndPreview UpdateConfig
+        , configAndPreview UpdateConfig { theme = model.theme } <|
             { title = "Checkbox"
             , preview =
                 [ form []

@@ -3,10 +3,10 @@ module Breadcrumb exposing (main)
 import Browser
 import Config
 import ConfigAndPreview exposing (configAndPreview)
-import Types exposing (Size(..), sizeFromString, sizeToString)
 import Data.Theme exposing (Theme(..))
 import Html.Styled as Html exposing (Html, toUnstyled)
 import Skeleton exposing (skeleton)
+import Types exposing (Size(..), sizeFromString, sizeToString)
 import UI.Breadcrumb exposing (Divider(..), bigBreadCrumb, breadcrumbWithProps, dividerFromString, dividerToString, hugeBreadCrumb, largeBreadCrumb, massiveBreadCrumb, mediumBreadCrumb, miniBreadCrumb, smallBreadCrumb, tinyBreadCrumb)
 import UI.Segment exposing (segment)
 
@@ -71,8 +71,7 @@ view model =
         options =
             { divider = model.divider, theme = model.theme }
     in
-    skeleton model
-        { changeThemeMsg = ChangeTheme }
+    skeleton { theme = model.theme, changeThemeMsg = ChangeTheme }
         [ let
             breadcrumb_ =
                 case model.size of
@@ -100,7 +99,7 @@ view model =
                     Massive ->
                         massiveBreadCrumb
           in
-          configAndPreview UpdateConfig
+          configAndPreview UpdateConfig { theme = model.theme } <|
             { title = "Breadcrumb"
             , preview =
                 [ breadcrumb_ options
@@ -142,7 +141,7 @@ view model =
                   }
                 ]
             }
-        , configAndPreview UpdateConfig
+        , configAndPreview UpdateConfig { theme = model.theme } <|
             { title = "Inverted"
             , preview =
                 [ segment { theme = Dark }

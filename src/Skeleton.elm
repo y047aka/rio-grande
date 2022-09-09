@@ -4,7 +4,7 @@ import Css exposing (..)
 import Css.FontAwesome exposing (fontAwesome)
 import Css.Global exposing (global)
 import Css.Media as Media exposing (only, screen, withMedia)
-import Css.Palette as Palette exposing (darkPalette, palette, setBackground, setColor)
+import Css.Palette as Palette exposing (darkPalette, palette, paletteWith, setBackground, setColor)
 import Css.Reset exposing (normalize)
 import Css.ResetAndCustomize exposing (additionalReset, globalCustomize)
 import Data.Theme as Theme exposing (Theme(..))
@@ -14,17 +14,28 @@ import Html.Styled.Events exposing (onInput)
 import UI.Breadcrumb exposing (BreadcrumbItem, Divider(..), breadcrumbWithProps)
 
 
-skeleton : { model | theme : Theme } -> { changeThemeMsg : Theme -> msg } -> List (Html msg) -> Html msg
-skeleton model { changeThemeMsg } body =
+skeleton : { theme : Theme, changeThemeMsg : Theme -> msg } -> List (Html msg) -> Html msg
+skeleton props body =
     div []
         [ global (normalize ++ additionalReset ++ globalCustomize ++ fontAwesome)
-        , siteHeader model { changeThemeMsg = changeThemeMsg } { title = "title" }
-        , main_ { theme = Light } [] body
+        , global
+            [ Css.Global.body
+                [ palette Palette.init
+                , darkPalette props.theme
+                    (Palette.init
+                        |> setBackground (hex "#1B1C1D")
+                        |> setColor (rgba 255 255 255 0.9)
+                    )
+                ]
+            ]
+        , siteHeader props
+            { title = "title" }
+        , main_ { theme = props.theme } [] body
         ]
 
 
-siteHeader : { model | theme : Theme } -> { changeThemeMsg : Theme -> msg } -> { title : String } -> Html msg
-siteHeader model { changeThemeMsg } page =
+siteHeader : { theme : Theme, changeThemeMsg : Theme -> msg } -> { title : String } -> Html msg
+siteHeader props page =
     header
         [ css
             [ position sticky
@@ -33,15 +44,20 @@ siteHeader model { changeThemeMsg } page =
             , displayFlex
             , justifyContent spaceBetween
             , padding (px 20)
-            , backgroundColor (hex "#FFF")
-            , borderBottom3 (px 1) solid (hex "#EEE")
+            , paletteWith { border = borderBottom3 (px 1) solid }
+                (Palette.init |> Palette.setBorder (hex "#DDD"))
+            , darkPalette props.theme
+                (Palette.init
+                    |> setBackground (hex "#1B1C1D")
+                    |> setColor (rgba 255 255 255 0.9)
+                )
             ]
         ]
-        [ breadcrumbWithProps { divider = Slash, size = Nothing, theme = model.theme }
+        [ breadcrumbWithProps { divider = Slash, size = Nothing, theme = props.theme }
             (breadcrumbItems page)
         , div []
-            [ select [ onInput (Theme.fromString >> Maybe.withDefault model.theme >> (\theme -> changeThemeMsg theme)) ] <|
-                List.map (\theme -> option [ value (Theme.toString theme), selected (model.theme == theme) ] [ text (Theme.toString theme) ])
+            [ select [ onInput (Theme.fromString >> Maybe.withDefault props.theme >> (\theme -> props.changeThemeMsg theme)) ] <|
+                List.map (\theme -> option [ value (Theme.toString theme), selected (props.theme == theme) ] [ text (Theme.toString theme) ])
                     [ System, Light, Dark ]
             ]
         ]

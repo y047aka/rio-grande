@@ -118,9 +118,8 @@ updatelabelOnIndicating model =
 
 view : Model -> Html Msg
 view model =
-    skeleton model
-        { changeThemeMsg = ChangeTheme }
-        [ configAndPreview UpdateConfig
+    skeleton { theme = model.theme, changeThemeMsg = ChangeTheme }
+        [ configAndPreview UpdateConfig { theme = model.theme } <|
             { title = "Progress"
             , preview =
                 [ Progress.progressWithProps
