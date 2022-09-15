@@ -104,6 +104,7 @@ view model =
                             { id = "state_example"
                             , label = "I agree to the Terms and Conditions"
                             , checked = model.checked
+                            , disabled = False
                             , state = model.state
                             , onClick = ToggleChecked
                             }
@@ -256,6 +257,7 @@ view model =
                         [ Checkbox.checkbox
                             { id = "checkbox_example_2"
                             , label = "Checkbox"
+                            , disabled = False
                             , checked = model.checked
                             , onClick = ToggleChecked
                             }
