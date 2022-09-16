@@ -7,8 +7,7 @@ import Data.Theme exposing (Theme(..))
 import Html.Styled as Html exposing (Html, toUnstyled)
 import Skeleton exposing (skeleton)
 import Types exposing (Size(..), sizeFromString, sizeToString)
-import UI.Breadcrumb exposing (Divider(..), bigBreadCrumb, breadcrumbWithProps, dividerFromString, dividerToString, hugeBreadCrumb, largeBreadCrumb, massiveBreadCrumb, mediumBreadCrumb, miniBreadCrumb, smallBreadCrumb, tinyBreadCrumb)
-import UI.Segment exposing (segment)
+import UI.Breadcrumb exposing (Divider(..), bigBreadCrumb, dividerFromString, dividerToString, hugeBreadCrumb, largeBreadCrumb, massiveBreadCrumb, mediumBreadCrumb, miniBreadCrumb, smallBreadCrumb, tinyBreadCrumb)
 
 
 main : Program () Model Msg
@@ -22,7 +21,7 @@ main =
 
 
 
--- MODEL
+-- INIT
 
 
 type alias Model =
@@ -126,7 +125,30 @@ view model =
                   }
                 , { label = "Variations"
                   , configs =
-                        [ { label = "Size"
+                        [ { label = ""
+                          , config =
+                                Config.bool
+                                    { id = "inverted"
+                                    , label = "Inverted"
+                                    , bool = model.theme == Dark
+                                    , setter =
+                                        \m ->
+                                            { m
+                                                | theme =
+                                                    case m.theme of
+                                                        System ->
+                                                            Dark
+
+                                                        Light ->
+                                                            Dark
+
+                                                        Dark ->
+                                                            Light
+                                            }
+                                    }
+                          , note = "A breadcrumb can be inverted"
+                          }
+                        , { label = "Size"
                           , config =
                                 Config.select
                                     { value = model.size
@@ -140,19 +162,5 @@ view model =
                         ]
                   }
                 ]
-            }
-        , configAndPreview UpdateConfig { theme = model.theme } <|
-            { title = "Inverted"
-            , preview =
-                [ segment { theme = Dark }
-                    []
-                    [ breadcrumbWithProps { divider = Slash, size = Nothing, theme = Dark }
-                        [ { label = "Home", url = "/" }
-                        , { label = "Registration", url = "/" }
-                        , { label = "Personal Information", url = "" }
-                        ]
-                    ]
-                ]
-            , configSections = []
             }
         ]
