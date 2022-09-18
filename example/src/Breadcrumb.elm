@@ -47,7 +47,7 @@ init _ =
 
 type Msg
     = ChangeTheme Theme
-    | UpdateConfig (Config.Msg Model Msg)
+    | UpdateConfig (Config.Msg Model)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )

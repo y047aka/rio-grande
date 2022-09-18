@@ -51,7 +51,7 @@ init _ =
 type Msg
     = ChangeTheme Theme
     | ToggleChecked
-    | UpdateConfig (Config.Msg Model Msg)
+    | UpdateConfig (Config.Msg Model)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
