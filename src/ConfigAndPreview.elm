@@ -6,6 +6,7 @@ import Data.Theme exposing (Theme(..))
 import Html.Styled as Html exposing (Html, aside, div, label, p, text)
 import Html.Styled.Attributes exposing (css)
 import UI.Header as Header
+import UI.Segment as Segment exposing (segmentWithProps)
 
 
 type alias ConfigSection model =
@@ -32,12 +33,14 @@ configAndPreview msg props { title, preview, configSections } =
             else
                 Header.header props [] [ text title ]
     in
-    Html.styled Html.div
-        [ padding2 (em 2) zero
-        , position relative
-        , property "-webkit-tap-highlight-color" "transparent"
-        , whiteSpace preWrap
-        ]
+    segmentWithProps
+        { padding = Segment.Default
+        , border = True
+        , shadow = False
+        , theme = props.theme
+        , disabled = False
+        , additionalStyles = []
+        }
         []
         [ title_
         , div

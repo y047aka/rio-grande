@@ -30,7 +30,7 @@ skeleton props body =
             ]
         , siteHeader props
             { title = "title" }
-        , main_ { theme = props.theme } [] body
+        , main_ { theme = props.theme } [ css [ paddingTop (em 2) ] ] body
         ]
 
 
@@ -94,7 +94,9 @@ main_ { theme } attributes children =
 container : List (Attribute msg) -> List (Html msg) -> Html msg
 container =
     Html.styled Html.div
-        [ maxWidth (pct 100)
+        [ displayFlex
+        , flexDirection column
+        , maxWidth (pct 100)
 
         -- Mobile
         , withMedia [ only screen [ Media.maxWidth (px 559.98) ] ]
