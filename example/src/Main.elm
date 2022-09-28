@@ -2,18 +2,18 @@ module Main exposing (main)
 
 import Browser exposing (Document)
 import Browser.Navigation as Nav exposing (Key)
-import Data.Theme exposing (Theme(..))
 import Html.Styled as Html exposing (a, text, toUnstyled)
 import Html.Styled.Attributes exposing (href)
 import Page.Breadcrumb as Breadcrumb
 import Page.Form as Form
 import Page.Progress as Progress
+import Shared
 import Skeleton exposing (skeleton)
 import Url exposing (Url)
 import Url.Parser exposing (Parser, s)
 
 
-main : Program () Model Msg
+main : Program Shared.Flags Model Msg
 main =
     Browser.application
         { init = init
@@ -26,12 +26,13 @@ main =
 
 
 
--- INIT
+-- MODEL
 
 
 type alias Model =
-    { key : Key
-    , theme : Theme
+    { url : Url
+    , key : Key
+    , shared : Shared.Model
     , subModel : SubModel
     }
 
@@ -44,10 +45,15 @@ type SubModel
     | ProgressModel Progress.Model
 
 
-init : () -> Url -> Key -> ( Model, Cmd Msg )
-init _ url key =
+init : Shared.Flags -> Url -> Key -> ( Model, Cmd Msg )
+init flags url key =
+    let
+        ( shared, _ ) =
+            Shared.init {} flags
+    in
     { key = key
-    , theme = System
+    , url = url
+    , shared = shared
     , subModel = None
     }
         |> routing url
@@ -108,7 +114,7 @@ routing url model =
 type Msg
     = UrlRequested Browser.UrlRequest
     | UrlChanged Url
-    | ChangeTheme Theme
+    | Shared Shared.Msg
     | BreadcrumbMsg Breadcrumb.Msg
     | FormMsg Form.Msg
     | ProgressMsg Progress.Msg
@@ -128,8 +134,14 @@ update msg model =
         ( _, UrlChanged url ) ->
             routing url model
 
-        ( _, ChangeTheme theme ) ->
-            ( { model | theme = theme }, Cmd.none )
+        ( _, Shared sharedMsg ) ->
+            let
+                ( shared, sharedCmd ) =
+                    Shared.update {} sharedMsg model.shared
+            in
+            ( { model | shared = shared }
+            , Cmd.map Shared sharedCmd
+            )
 
         ( BreadcrumbModel subModel, BreadcrumbMsg subMsg ) ->
             Breadcrumb.update subMsg subModel
@@ -163,7 +175,7 @@ view model =
     { title = "rio grande"
     , body =
         List.map toUnstyled <|
-            [ skeleton { theme = model.theme, changeThemeMsg = ChangeTheme } <|
+            [ skeleton { theme = model.shared.theme, changeThemeMsg = Shared.ChangeTheme >> Shared } <|
                 case model.subModel of
                     None ->
                         [ text "Not Found" ]
