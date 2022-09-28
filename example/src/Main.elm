@@ -95,15 +95,15 @@ routing url model =
 
                     Breadcrumb ->
                         Breadcrumb.init
-                            |> updateWith BreadcrumbModel BreadcrumbMsg model
+                            |> updateWith BreadcrumbModel (BreadcrumbMsg >> Page) model
 
                     Form ->
                         Form.init
-                            |> updateWith FormModel FormMsg model
+                            |> updateWith FormModel (FormMsg >> Page) model
 
                     Progress ->
                         Progress.init
-                            |> updateWith ProgressModel ProgressMsg model
+                            |> updateWith ProgressModel (ProgressMsg >> Page) model
            )
 
 
@@ -115,15 +115,19 @@ type Msg
     = UrlRequested Browser.UrlRequest
     | UrlChanged Url
     | Shared Shared.Msg
-    | BreadcrumbMsg Breadcrumb.Msg
+    | Page PageMsg
+
+
+type PageMsg
+    = BreadcrumbMsg Breadcrumb.Msg
     | FormMsg Form.Msg
     | ProgressMsg Progress.Msg
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    case ( model.subModel, msg ) of
-        ( _, UrlRequested urlRequest ) ->
+    case msg of
+        UrlRequested urlRequest ->
             case urlRequest of
                 Browser.Internal url ->
                     ( model, Nav.pushUrl model.key (Url.toString url) )
@@ -131,10 +135,10 @@ update msg model =
                 Browser.External href ->
                     ( model, Nav.load href )
 
-        ( _, UrlChanged url ) ->
+        UrlChanged url ->
             routing url model
 
-        ( _, Shared sharedMsg ) ->
+        Shared sharedMsg ->
             let
                 ( shared, sharedCmd ) =
                     Shared.update {} sharedMsg model.shared
@@ -143,20 +147,22 @@ update msg model =
             , Cmd.map Shared sharedCmd
             )
 
-        ( BreadcrumbModel subModel, BreadcrumbMsg subMsg ) ->
-            Breadcrumb.update subMsg subModel
-                |> updateWith BreadcrumbModel BreadcrumbMsg model
+        Page pageMsg ->
+            case ( model.subModel, pageMsg ) of
+                ( BreadcrumbModel subModel, BreadcrumbMsg subMsg ) ->
+                    Breadcrumb.update subMsg subModel
+                        |> updateWith BreadcrumbModel (BreadcrumbMsg >> Page) model
 
-        ( FormModel subModel, FormMsg subMsg ) ->
-            Form.update subMsg subModel
-                |> updateWith FormModel FormMsg model
+                ( FormModel subModel, FormMsg subMsg ) ->
+                    Form.update subMsg subModel
+                        |> updateWith FormModel (FormMsg >> Page) model
 
-        ( ProgressModel subModel, ProgressMsg subMsg ) ->
-            Progress.update subMsg subModel
-                |> updateWith ProgressModel ProgressMsg model
+                ( ProgressModel subModel, ProgressMsg subMsg ) ->
+                    Progress.update subMsg subModel
+                        |> updateWith ProgressModel (ProgressMsg >> Page) model
 
-        _ ->
-            ( model, Cmd.none )
+                _ ->
+                    ( model, Cmd.none )
 
 
 updateWith : (subModel -> SubModel) -> (subMsg -> Msg) -> Model -> ( subModel, Cmd subMsg ) -> ( Model, Cmd Msg )
@@ -172,27 +178,32 @@ updateWith toModel toMsg model ( subModel, subCmd ) =
 
 view : Model -> Document Msg
 view model =
-    { title = "rio grande"
-    , body =
-        List.map toUnstyled <|
-            [ skeleton { theme = model.shared.theme, changeThemeMsg = Shared.ChangeTheme >> Shared } <|
-                case model.subModel of
-                    None ->
-                        [ text "Not Found" ]
+    (case model.subModel of
+        None ->
+            [ text "Not Found" ]
 
-                    TopModel ->
-                        [ a [ href "/breadcrumb" ] [ text "Breadcrumb" ]
-                        , a [ href "/form" ] [ text "Form" ]
-                        , a [ href "/progress" ] [ text "Progress" ]
-                        ]
-
-                    BreadcrumbModel subModel ->
-                        List.map (Html.map BreadcrumbMsg) (Breadcrumb.view subModel)
-
-                    FormModel subModel ->
-                        List.map (Html.map FormMsg) (Form.view subModel)
-
-                    ProgressModel subModel ->
-                        List.map (Html.map ProgressMsg) (Progress.view subModel)
+        TopModel ->
+            [ a [ href "/breadcrumb" ] [ text "Breadcrumb" ]
+            , a [ href "/form" ] [ text "Form" ]
+            , a [ href "/progress" ] [ text "Progress" ]
             ]
-    }
+
+        BreadcrumbModel subModel ->
+            List.map (Html.map BreadcrumbMsg) (Breadcrumb.view subModel)
+
+        FormModel subModel ->
+            List.map (Html.map FormMsg) (Form.view subModel)
+
+        ProgressModel subModel ->
+            List.map (Html.map ProgressMsg) (Progress.view subModel)
+    )
+        |> List.map (Html.map Page)
+        |> (\view_ ->
+                { title = "rio grande"
+                , body =
+                    [ view_
+                        |> skeleton { theme = model.shared.theme, changeThemeMsg = Shared.ChangeTheme >> Shared }
+                        |> toUnstyled
+                    ]
+                }
+           )
