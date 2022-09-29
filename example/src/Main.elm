@@ -2,6 +2,7 @@ module Main exposing (main)
 
 import Browser exposing (Document)
 import Browser.Navigation as Nav exposing (Key)
+import Effect exposing (Effect)
 import Html.Styled as Html exposing (a, text, toUnstyled)
 import Html.Styled.Attributes exposing (href)
 import Page.Breadcrumb as Breadcrumb
@@ -91,13 +92,13 @@ routing url model =
         |> Maybe.withDefault NotFound
         |> (\page ->
                 let
-                    ( subModel, pageCmd ) =
+                    ( subModel, effect ) =
                         case page of
                             NotFound ->
-                                ( None, Nothing )
+                                ( None, Effect.none )
 
                             Top ->
-                                ( TopModel, Nothing )
+                                ( TopModel, Effect.none )
 
                             Breadcrumb ->
                                 Breadcrumb.init |> updateWith BreadcrumbModel BreadcrumbMsg
@@ -109,9 +110,7 @@ routing url model =
                                 Progress.init |> updateWith ProgressModel ProgressMsg
                 in
                 ( { model | subModel = subModel }
-                , pageCmd
-                    |> Maybe.map (Cmd.map Page)
-                    |> Maybe.withDefault Cmd.none
+                , Effect.toCmd ( Shared, Page ) effect
                 )
            )
 
@@ -158,7 +157,7 @@ update msg model =
 
         Page pageMsg ->
             let
-                ( subModel, pageCmd ) =
+                ( subModel, effect ) =
                     case ( model.subModel, pageMsg ) of
                         ( BreadcrumbModel subModel_, BreadcrumbMsg subMsg ) ->
                             Breadcrumb.update subMsg subModel_
@@ -173,19 +172,17 @@ update msg model =
                                 |> updateWith ProgressModel ProgressMsg
 
                         _ ->
-                            ( None, Nothing )
+                            ( None, Effect.none )
             in
             ( { model | subModel = subModel }
-            , pageCmd
-                |> Maybe.map (Cmd.map Page)
-                |> Maybe.withDefault Cmd.none
+            , Effect.toCmd ( Shared, Page ) effect
             )
 
 
-updateWith : (subModel -> SubModel) -> (subMsg -> PageMsg) -> ( subModel, Cmd subMsg ) -> ( SubModel, Maybe (Cmd PageMsg) )
+updateWith : (subModel -> SubModel) -> (subMsg -> PageMsg) -> ( subModel, Cmd subMsg ) -> ( SubModel, Effect PageMsg )
 updateWith toModel toMsg ( subModel, subCmd ) =
     ( toModel subModel
-    , Just (Cmd.map toMsg subCmd)
+    , Effect.fromCmd (Cmd.map toMsg subCmd)
     )
 
 
