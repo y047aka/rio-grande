@@ -12,10 +12,11 @@ import Html.Styled as Html exposing (Attribute, Html, div, header, option, selec
 import Html.Styled.Attributes exposing (css, selected, value)
 import Html.Styled.Events exposing (onInput)
 import UI.Breadcrumb exposing (BreadcrumbItem, Divider(..), breadcrumbWithProps)
+import Url exposing (Url)
 
 
-skeleton : { theme : Theme, changeThemeMsg : Theme -> msg } -> List (Html msg) -> Html msg
-skeleton props body =
+skeleton : { url : Url, theme : Theme, changeThemeMsg : Theme -> msg } -> { title : String, body : List (Html msg) } -> Html msg
+skeleton props { title, body } =
     div []
         [ global (normalize ++ additionalReset ++ globalCustomize ++ fontAwesome)
         , global
@@ -28,13 +29,12 @@ skeleton props body =
                     )
                 ]
             ]
-        , siteHeader props
-            { title = "title" }
+        , siteHeader { theme = props.theme, changeThemeMsg = props.changeThemeMsg } { title = title, url = props.url }
         , main_ { theme = props.theme } [ css [ paddingTop (em 2) ] ] body
         ]
 
 
-siteHeader : { theme : Theme, changeThemeMsg : Theme -> msg } -> { title : String } -> Html msg
+siteHeader : { theme : Theme, changeThemeMsg : Theme -> msg } -> { title : String, url : Url } -> Html msg
 siteHeader props page =
     header
         [ css
@@ -45,7 +45,10 @@ siteHeader props page =
             , justifyContent spaceBetween
             , padding (px 20)
             , paletteWith { border = borderBottom3 (px 1) solid }
-                (Palette.init |> Palette.setBorder (hex "#DDD"))
+                (Palette.init
+                    |> setBackground (hex "#FFF")
+                    |> Palette.setBorder (hex "#DDD")
+                )
             , darkPalette props.theme
                 (Palette.init
                     |> setBackground (hex "#1B1C1D")
@@ -63,15 +66,15 @@ siteHeader props page =
         ]
 
 
-breadcrumbItems : { title : String } -> List BreadcrumbItem
-breadcrumbItems { title } =
-    case "/" of
+breadcrumbItems : { title : String, url : Url } -> List BreadcrumbItem
+breadcrumbItems { title, url } =
+    case url.path of
         "/" ->
             [ { label = "Top", url = "/" } ]
 
         _ ->
             [ { label = "Top", url = "/" }
-            , { label = title, url = "" }
+            , { label = title, url = Url.toString url }
             ]
 
 

@@ -51,8 +51,8 @@ init flags url key =
         ( shared, _ ) =
             Shared.init {} flags
     in
-    { key = key
-    , url = url
+    { url = url
+    , key = key
     , shared = shared
     , subModel = None
     }
@@ -201,8 +201,22 @@ view model =
         |> (\view_ ->
                 { title = "rio grande"
                 , body =
-                    [ view_
-                        |> skeleton { theme = model.shared.theme, changeThemeMsg = Shared.ChangeTheme >> Shared }
+                    [ skeleton { url = model.url, theme = model.shared.theme, changeThemeMsg = Shared.ChangeTheme >> Shared }
+                        { title =
+                            case model.subModel of
+                                BreadcrumbModel _ ->
+                                    "Breadcrumb"
+
+                                FormModel _ ->
+                                    "Form"
+
+                                ProgressModel _ ->
+                                    "Progress"
+
+                                _ ->
+                                    ""
+                        , body = view_
+                        }
                         |> toUnstyled
                     ]
                 }
