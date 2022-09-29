@@ -5,6 +5,7 @@ import ConfigAndPreview exposing (configAndPreview)
 import Data.Theme exposing (Theme(..))
 import Html.Styled as Html exposing (Html, text)
 import Html.Styled.Attributes exposing (placeholder, rows, type_)
+import Shared
 import Types exposing (FormState(..), formStateFromString, formStateToString)
 import UI.Button exposing (button)
 import UI.Checkbox as Checkbox
@@ -59,8 +60,8 @@ update msg model =
 -- VIEW
 
 
-view : Model -> List (Html Msg)
-view model =
+view : Shared.Model -> Model -> List (Html Msg)
+view _ model =
     [ configAndPreview UpdateConfig { theme = model.theme } <|
         { title = "Form"
         , preview =

@@ -48,15 +48,19 @@ type SubModel
 init : Shared.Flags -> Url -> Key -> ( Model, Cmd Msg )
 init flags url key =
     let
-        ( shared, _ ) =
+        ( shared, sharedCmd ) =
             Shared.init {} flags
+
+        ( model, cmd ) =
+            Model url key shared None
+                |> routing url
     in
-    { url = url
-    , key = key
-    , shared = shared
-    , subModel = None
-    }
-        |> routing url
+    ( model
+    , Cmd.batch
+        [ Cmd.map Shared sharedCmd
+        , cmd
+        ]
+    )
 
 
 
@@ -86,24 +90,29 @@ routing url model =
     Url.Parser.parse parser url
         |> Maybe.withDefault NotFound
         |> (\page ->
-                case page of
-                    NotFound ->
-                        ( { model | subModel = None }, Cmd.none )
+                let
+                    ( subModel, pageCmd ) =
+                        case page of
+                            NotFound ->
+                                ( None, Nothing )
 
-                    Top ->
-                        ( { model | subModel = TopModel }, Cmd.none )
+                            Top ->
+                                ( TopModel, Nothing )
 
-                    Breadcrumb ->
-                        Breadcrumb.init
-                            |> updateWith BreadcrumbModel (BreadcrumbMsg >> Page) model
+                            Breadcrumb ->
+                                Breadcrumb.init |> updateWith BreadcrumbModel BreadcrumbMsg
 
-                    Form ->
-                        Form.init
-                            |> updateWith FormModel (FormMsg >> Page) model
+                            Form ->
+                                Form.init |> updateWith FormModel FormMsg
 
-                    Progress ->
-                        Progress.init
-                            |> updateWith ProgressModel (ProgressMsg >> Page) model
+                            Progress ->
+                                Progress.init |> updateWith ProgressModel ProgressMsg
+                in
+                ( { model | subModel = subModel }
+                , pageCmd
+                    |> Maybe.map (Cmd.map Page)
+                    |> Maybe.withDefault Cmd.none
+                )
            )
 
 
@@ -148,27 +157,35 @@ update msg model =
             )
 
         Page pageMsg ->
-            case ( model.subModel, pageMsg ) of
-                ( BreadcrumbModel subModel, BreadcrumbMsg subMsg ) ->
-                    Breadcrumb.update subMsg subModel
-                        |> updateWith BreadcrumbModel (BreadcrumbMsg >> Page) model
+            let
+                ( subModel, pageCmd ) =
+                    case ( model.subModel, pageMsg ) of
+                        ( BreadcrumbModel subModel_, BreadcrumbMsg subMsg ) ->
+                            Breadcrumb.update subMsg subModel_
+                                |> updateWith BreadcrumbModel BreadcrumbMsg
 
-                ( FormModel subModel, FormMsg subMsg ) ->
-                    Form.update subMsg subModel
-                        |> updateWith FormModel (FormMsg >> Page) model
+                        ( FormModel subModel_, FormMsg subMsg ) ->
+                            Form.update subMsg subModel_
+                                |> updateWith FormModel FormMsg
 
-                ( ProgressModel subModel, ProgressMsg subMsg ) ->
-                    Progress.update subMsg subModel
-                        |> updateWith ProgressModel (ProgressMsg >> Page) model
+                        ( ProgressModel subModel_, ProgressMsg subMsg ) ->
+                            Progress.update subMsg subModel_
+                                |> updateWith ProgressModel ProgressMsg
 
-                _ ->
-                    ( model, Cmd.none )
+                        _ ->
+                            ( None, Nothing )
+            in
+            ( { model | subModel = subModel }
+            , pageCmd
+                |> Maybe.map (Cmd.map Page)
+                |> Maybe.withDefault Cmd.none
+            )
 
 
-updateWith : (subModel -> SubModel) -> (subMsg -> Msg) -> Model -> ( subModel, Cmd subMsg ) -> ( Model, Cmd Msg )
-updateWith toModel toMsg model ( subModel, subCmd ) =
-    ( { model | subModel = toModel subModel }
-    , Cmd.map toMsg subCmd
+updateWith : (subModel -> SubModel) -> (subMsg -> PageMsg) -> ( subModel, Cmd subMsg ) -> ( SubModel, Maybe (Cmd PageMsg) )
+updateWith toModel toMsg ( subModel, subCmd ) =
+    ( toModel subModel
+    , Just (Cmd.map toMsg subCmd)
     )
 
 
@@ -177,8 +194,8 @@ updateWith toModel toMsg model ( subModel, subCmd ) =
 
 
 view : Model -> Document Msg
-view model =
-    (case model.subModel of
+view { url, shared, subModel } =
+    (case subModel of
         None ->
             [ text "Not Found" ]
 
@@ -188,22 +205,22 @@ view model =
             , a [ href "/progress" ] [ text "Progress" ]
             ]
 
-        BreadcrumbModel subModel ->
-            List.map (Html.map BreadcrumbMsg) (Breadcrumb.view subModel)
+        BreadcrumbModel subModel_ ->
+            List.map (Html.map BreadcrumbMsg) (Breadcrumb.view shared subModel_)
 
-        FormModel subModel ->
-            List.map (Html.map FormMsg) (Form.view subModel)
+        FormModel subModel_ ->
+            List.map (Html.map FormMsg) (Form.view shared subModel_)
 
-        ProgressModel subModel ->
-            List.map (Html.map ProgressMsg) (Progress.view subModel)
+        ProgressModel subModel_ ->
+            List.map (Html.map ProgressMsg) (Progress.view shared subModel_)
     )
         |> List.map (Html.map Page)
         |> (\view_ ->
                 { title = "rio grande"
                 , body =
-                    [ skeleton { url = model.url, theme = model.shared.theme, changeThemeMsg = Shared.ChangeTheme >> Shared }
+                    [ skeleton { url = url, theme = shared.theme, changeThemeMsg = Shared.ChangeTheme >> Shared }
                         { title =
-                            case model.subModel of
+                            case subModel of
                                 BreadcrumbModel _ ->
                                     "Breadcrumb"
 

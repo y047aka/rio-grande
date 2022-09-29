@@ -4,6 +4,7 @@ import Config
 import ConfigAndPreview exposing (configAndPreview)
 import Data.Theme exposing (Theme(..))
 import Html.Styled as Html exposing (Html)
+import Shared
 import Types exposing (Size(..), sizeFromString, sizeToString)
 import UI.Breadcrumb exposing (Divider(..), bigBreadCrumb, dividerFromString, dividerToString, hugeBreadCrumb, largeBreadCrumb, massiveBreadCrumb, mediumBreadCrumb, miniBreadCrumb, smallBreadCrumb, tinyBreadCrumb)
 
@@ -52,8 +53,8 @@ update msg model =
 -- VIEW
 
 
-view : Model -> List (Html Msg)
-view model =
+view : Shared.Model -> Model -> List (Html Msg)
+view _ model =
     let
         options =
             { divider = model.divider, theme = model.theme }

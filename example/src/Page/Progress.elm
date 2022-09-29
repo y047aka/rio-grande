@@ -6,6 +6,7 @@ import Css exposing (int)
 import Data.Theme exposing (Theme(..))
 import Html.Styled as Html exposing (Html)
 import Random
+import Shared
 import UI.Progress as Progress exposing (State(..))
 
 
@@ -100,8 +101,8 @@ updatelabelOnIndicating model =
 -- VIEW
 
 
-view : Model -> List (Html Msg)
-view model =
+view : Shared.Model -> Model -> List (Html Msg)
+view _ model =
     [ configAndPreview UpdateConfig { theme = model.theme } <|
         { title = "Progress"
         , preview =
