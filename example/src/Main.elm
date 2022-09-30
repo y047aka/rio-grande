@@ -101,13 +101,19 @@ routing url model =
                                 ( TopModel, Effect.none )
 
                             Breadcrumb ->
-                                Breadcrumb.init |> updateWith BreadcrumbModel BreadcrumbMsg
+                                Breadcrumb.init
+                                    |> Tuple.mapSecond Effect.fromCmd
+                                    |> updateWith BreadcrumbModel BreadcrumbMsg
 
                             Form ->
-                                Form.init |> updateWith FormModel FormMsg
+                                Form.init
+                                    |> Tuple.mapSecond Effect.fromCmd
+                                    |> updateWith FormModel FormMsg
 
                             Progress ->
-                                Progress.init |> updateWith ProgressModel ProgressMsg
+                                Progress.init
+                                    |> Tuple.mapSecond Effect.fromCmd
+                                    |> updateWith ProgressModel ProgressMsg
                 in
                 ( { model | subModel = subModel }
                 , Effect.toCmd ( Shared, Page ) effect
@@ -161,14 +167,16 @@ update msg model =
                     case ( model.subModel, pageMsg ) of
                         ( BreadcrumbModel subModel_, BreadcrumbMsg subMsg ) ->
                             Breadcrumb.update subMsg subModel_
-                                |> (\toModel toMsg ( subModel__, subEffect ) -> ( toModel subModel__, Effect.map toMsg subEffect )) BreadcrumbModel BreadcrumbMsg
+                                |> updateWith BreadcrumbModel BreadcrumbMsg
 
                         ( FormModel subModel_, FormMsg subMsg ) ->
                             Form.update subMsg subModel_
+                                |> Tuple.mapSecond Effect.fromCmd
                                 |> updateWith FormModel FormMsg
 
                         ( ProgressModel subModel_, ProgressMsg subMsg ) ->
                             Progress.update subMsg subModel_
+                                |> Tuple.mapSecond Effect.fromCmd
                                 |> updateWith ProgressModel ProgressMsg
 
                         _ ->
@@ -179,11 +187,9 @@ update msg model =
             )
 
 
-updateWith : (subModel -> SubModel) -> (subMsg -> PageMsg) -> ( subModel, Cmd subMsg ) -> ( SubModel, Effect PageMsg )
-updateWith toModel toMsg ( subModel, subCmd ) =
-    ( toModel subModel
-    , Effect.fromCmd (Cmd.map toMsg subCmd)
-    )
+updateWith : (subModel -> SubModel) -> (subMsg -> PageMsg) -> ( subModel, Effect subMsg ) -> ( SubModel, Effect PageMsg )
+updateWith toModel toMsg ( subModel, subEffect ) =
+    ( toModel subModel, Effect.map toMsg subEffect )
 
 
 
