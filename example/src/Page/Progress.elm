@@ -15,8 +15,7 @@ import UI.Progress as Progress exposing (State(..))
 
 
 type alias Model =
-    { theme : Theme
-    , progressValue : Float
+    { progressValue : Float
     , progressLabel : String
     , label : String
     , indicating : Bool
@@ -26,8 +25,7 @@ type alias Model =
 
 init : ( Model, Cmd Msg )
 init =
-    ( { theme = System
-      , progressValue = 0
+    ( { progressValue = 0
       , progressLabel = "%"
       , label = "Uploading Files"
       , indicating = False
@@ -102,8 +100,8 @@ updatelabelOnIndicating model =
 
 
 view : Shared.Model -> Model -> List (Html Msg)
-view _ model =
-    [ configAndPreview UpdateConfig { theme = model.theme } <|
+view shared model =
+    [ configAndPreview UpdateConfig { theme = shared.theme } <|
         { title = "Progress"
         , preview =
             [ Progress.progressWithProps

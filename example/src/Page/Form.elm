@@ -17,16 +17,14 @@ import UI.Form as Form exposing (field, fields, form, textarea, threeFields, two
 
 
 type alias Model =
-    { theme : Theme
-    , checked : Bool
+    { checked : Bool
     , state : FormState
     }
 
 
 init : ( Model, Cmd Msg )
 init =
-    ( { theme = System
-      , checked = False
+    ( { checked = False
       , state = Error
       }
     , Cmd.none
@@ -38,17 +36,13 @@ init =
 
 
 type Msg
-    = ChangeTheme Theme
-    | ToggleChecked
+    = ToggleChecked
     | UpdateConfig (Config.Msg Model)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        ChangeTheme theme ->
-            ( { model | theme = theme }, Cmd.none )
-
         ToggleChecked ->
             ( { model | checked = not model.checked }, Cmd.none )
 
@@ -61,8 +55,8 @@ update msg model =
 
 
 view : Shared.Model -> Model -> List (Html Msg)
-view _ model =
-    [ configAndPreview UpdateConfig { theme = model.theme } <|
+view shared model =
+    [ configAndPreview UpdateConfig { theme = shared.theme } <|
         { title = "Form"
         , preview =
             [ form []
@@ -133,7 +127,7 @@ view _ model =
               }
             ]
         }
-    , configAndPreview UpdateConfig { theme = model.theme } <|
+    , configAndPreview UpdateConfig { theme = shared.theme } <|
         { title = "Field"
         , preview =
             [ form []
@@ -148,7 +142,7 @@ view _ model =
             ]
         , configSections = []
         }
-    , configAndPreview UpdateConfig { theme = model.theme } <|
+    , configAndPreview UpdateConfig { theme = shared.theme } <|
         { title = "Fields"
         , preview =
             [ form []
@@ -179,7 +173,7 @@ view _ model =
             ]
         , configSections = []
         }
-    , configAndPreview UpdateConfig { theme = model.theme } <|
+    , configAndPreview UpdateConfig { theme = shared.theme } <|
         { title = ""
         , preview =
             [ form []
@@ -210,7 +204,7 @@ view _ model =
             ]
         , configSections = []
         }
-    , configAndPreview UpdateConfig { theme = model.theme } <|
+    , configAndPreview UpdateConfig { theme = shared.theme } <|
         { title = "Text Area"
         , preview =
             [ form []
@@ -232,7 +226,7 @@ view _ model =
             ]
         , configSections = []
         }
-    , configAndPreview UpdateConfig { theme = model.theme } <|
+    , configAndPreview UpdateConfig { theme = shared.theme } <|
         { title = "Checkbox"
         , preview =
             [ form []

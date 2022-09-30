@@ -35,16 +35,12 @@ init =
 
 
 type Msg
-    = ChangeTheme Theme
-    | UpdateConfig (Config.Msg Model)
+    = UpdateConfig (Config.Msg Model)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        ChangeTheme theme ->
-            ( { model | theme = theme }, Cmd.none )
-
         UpdateConfig configMsg ->
             ( Config.update configMsg model, Cmd.none )
 
