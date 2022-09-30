@@ -3,6 +3,7 @@ module Page.Breadcrumb exposing (Model, Msg, init, update, view)
 import Config
 import ConfigAndPreview exposing (configAndPreview)
 import Data.Theme exposing (Theme(..))
+import Effect exposing (Effect)
 import Html.Styled as Html exposing (Html)
 import Shared
 import Types exposing (Size(..), sizeFromString, sizeToString)
@@ -14,16 +15,16 @@ import UI.Breadcrumb exposing (Divider(..), bigBreadCrumb, dividerFromString, di
 
 
 type alias Model =
-    { theme : Theme
-    , divider : Divider
+    { divider : Divider
+    , inverted : Bool
     , size : Size
     }
 
 
 init : ( Model, Cmd Msg )
 init =
-    ( { theme = System
-      , divider = Slash
+    ( { divider = Slash
+      , inverted = False
       , size = Medium
       }
     , Cmd.none
@@ -38,11 +39,26 @@ type Msg
     = UpdateConfig (Config.Msg Model)
 
 
-update : Msg -> Model -> ( Model, Cmd Msg )
+update : Msg -> Model -> ( Model, Effect Msg )
 update msg model =
     case msg of
         UpdateConfig configMsg ->
-            ( Config.update configMsg model, Cmd.none )
+            let
+                newModel =
+                    Config.update configMsg model
+
+                effect =
+                    case ( newModel.inverted == model.inverted, newModel.inverted ) of
+                        ( True, _ ) ->
+                            Effect.none
+
+                        ( False, True ) ->
+                            Effect.fromShared (Shared.ChangeTheme Dark)
+
+                        ( False, False ) ->
+                            Effect.fromShared (Shared.ChangeTheme Light)
+            in
+            ( newModel, effect )
 
 
 
@@ -50,10 +66,10 @@ update msg model =
 
 
 view : Shared.Model -> Model -> List (Html Msg)
-view _ model =
+view shared model =
     let
         options =
-            { divider = model.divider, theme = model.theme }
+            { divider = model.divider, theme = shared.theme }
     in
     [ let
         breadcrumb_ =
@@ -82,7 +98,7 @@ view _ model =
                 Massive ->
                     massiveBreadCrumb
       in
-      configAndPreview UpdateConfig { theme = model.theme } <|
+      configAndPreview UpdateConfig { theme = shared.theme } <|
         { title = "Breadcrumb"
         , preview =
             [ breadcrumb_ options
@@ -114,21 +130,8 @@ view _ model =
                             Config.bool
                                 { id = "inverted"
                                 , label = "Inverted"
-                                , bool = model.theme == Dark
-                                , setter =
-                                    \m ->
-                                        { m
-                                            | theme =
-                                                case m.theme of
-                                                    System ->
-                                                        Dark
-
-                                                    Light ->
-                                                        Dark
-
-                                                    Dark ->
-                                                        Light
-                                        }
+                                , bool = model.inverted
+                                , setter = \m -> { m | inverted = not m.inverted }
                                 }
                       , note = "A breadcrumb can be inverted"
                       }

@@ -161,7 +161,7 @@ update msg model =
                     case ( model.subModel, pageMsg ) of
                         ( BreadcrumbModel subModel_, BreadcrumbMsg subMsg ) ->
                             Breadcrumb.update subMsg subModel_
-                                |> updateWith BreadcrumbModel BreadcrumbMsg
+                                |> (\toModel toMsg ( subModel__, subEffect ) -> ( toModel subModel__, Effect.map toMsg subEffect )) BreadcrumbModel BreadcrumbMsg
 
                         ( FormModel subModel_, FormMsg subMsg ) ->
                             Form.update subMsg subModel_
