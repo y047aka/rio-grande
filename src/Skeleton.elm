@@ -30,7 +30,7 @@ skeleton props { title, body } =
                 ]
             ]
         , siteHeader { theme = props.theme, changeThemeMsg = props.changeThemeMsg } { title = title, url = props.url }
-        , main_ { theme = props.theme } [ css [ paddingTop (em 2) ] ] body
+        , main_ { theme = props.theme } [] body
         ]
 
 
@@ -82,7 +82,7 @@ main_ : { theme : Theme } -> List (Attribute msg) -> List (Html msg) -> Html msg
 main_ { theme } attributes children =
     Html.styled Html.main_
         [ margin zero
-        , padding zero
+        , padding2 (em 2) zero
         , palette Palette.init
         , darkPalette theme
             (Palette.init
@@ -99,6 +99,7 @@ container =
     Html.styled Html.div
         [ displayFlex
         , flexDirection column
+        , property "gap" "50px"
         , maxWidth (pct 100)
 
         -- Mobile
