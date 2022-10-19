@@ -101,7 +101,7 @@ updatelabelOnIndicating model =
 
 view : Shared.Model -> Model -> List (Html Msg)
 view shared model =
-    [ configAndPreview UpdateConfig { theme = shared.theme } <|
+    [ configAndPreview UpdateConfig { theme = shared.theme, inverted = False } <|
         { title = "Progress"
         , preview =
             [ Progress.progressWithProps

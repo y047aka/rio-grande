@@ -43,22 +43,7 @@ update : Msg -> Model -> ( Model, Effect Msg )
 update msg model =
     case msg of
         UpdateConfig configMsg ->
-            let
-                newModel =
-                    Config.update configMsg model
-
-                effect =
-                    case ( newModel.inverted == model.inverted, newModel.inverted ) of
-                        ( True, _ ) ->
-                            Effect.none
-
-                        ( False, True ) ->
-                            Effect.fromShared (Shared.ChangeTheme Dark)
-
-                        ( False, False ) ->
-                            Effect.fromShared (Shared.ChangeTheme Light)
-            in
-            ( newModel, effect )
+            ( Config.update configMsg model, Effect.none )
 
 
 
@@ -98,7 +83,7 @@ view shared model =
                 Massive ->
                     massiveBreadCrumb
       in
-      configAndPreview UpdateConfig { theme = shared.theme } <|
+      configAndPreview UpdateConfig { theme = shared.theme, inverted = model.inverted } <|
         { title = "Breadcrumb"
         , preview =
             [ breadcrumb_ options

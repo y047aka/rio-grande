@@ -56,7 +56,7 @@ update msg model =
 
 view : Shared.Model -> Model -> List (Html Msg)
 view shared model =
-    [ configAndPreview UpdateConfig { theme = shared.theme } <|
+    [ configAndPreview UpdateConfig { theme = shared.theme, inverted = False } <|
         { title = "Form"
         , preview =
             [ form []
@@ -127,7 +127,7 @@ view shared model =
               }
             ]
         }
-    , configAndPreview UpdateConfig { theme = shared.theme } <|
+    , configAndPreview UpdateConfig { theme = shared.theme, inverted = False } <|
         { title = "Field"
         , preview =
             [ form []
@@ -142,7 +142,7 @@ view shared model =
             ]
         , configSections = []
         }
-    , configAndPreview UpdateConfig { theme = shared.theme } <|
+    , configAndPreview UpdateConfig { theme = shared.theme, inverted = False } <|
         { title = "Fields"
         , preview =
             [ form []
@@ -173,7 +173,7 @@ view shared model =
             ]
         , configSections = []
         }
-    , configAndPreview UpdateConfig { theme = shared.theme } <|
+    , configAndPreview UpdateConfig { theme = shared.theme, inverted = False } <|
         { title = ""
         , preview =
             [ form []
@@ -204,7 +204,7 @@ view shared model =
             ]
         , configSections = []
         }
-    , configAndPreview UpdateConfig { theme = shared.theme } <|
+    , configAndPreview UpdateConfig { theme = shared.theme, inverted = False } <|
         { title = "Text Area"
         , preview =
             [ form []
@@ -226,7 +226,7 @@ view shared model =
             ]
         , configSections = []
         }
-    , configAndPreview UpdateConfig { theme = shared.theme } <|
+    , configAndPreview UpdateConfig { theme = shared.theme, inverted = False } <|
         { title = "Checkbox"
         , preview =
             [ form []
