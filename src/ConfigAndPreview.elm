@@ -16,15 +16,15 @@ type alias ConfigSection model =
 
 
 configAndPreview :
-    (Config.Msg model -> msg)
-    -> { theme : Theme, inverted : Bool }
-    ->
-        { title : String
-        , preview : List (Html msg)
-        , configSections : List (ConfigSection model)
-        }
+    { title : String
+    , toMsg : Config.Msg model -> msg
+    , theme : Theme
+    , inverted : Bool
+    , preview : List (Html msg)
+    , configSections : List (ConfigSection model)
+    }
     -> Html msg
-configAndPreview msg { theme, inverted } { title, preview, configSections } =
+configAndPreview { title, toMsg, theme, inverted, preview, configSections } =
     let
         title_ =
             if title == "" then
@@ -45,7 +45,7 @@ configAndPreview msg { theme, inverted } { title, preview, configSections } =
                 ]
             ]
             [ previewPanel { inverted = inverted } preview
-            , configPanel msg configSections
+            , configPanel toMsg configSections
             ]
         ]
 
@@ -78,8 +78,8 @@ previewPanel { inverted } previewSections =
 
 
 configPanel : (Config.Msg model -> msg) -> List (ConfigSection model) -> Html msg
-configPanel msg configSections =
-    Html.map msg <|
+configPanel toMsg configSections =
+    Html.map toMsg <|
         aside
             [ css
                 [ padding (em 1)

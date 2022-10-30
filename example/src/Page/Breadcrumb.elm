@@ -83,8 +83,11 @@ view shared model =
                 Massive ->
                     massiveBreadCrumb
       in
-      playground UpdateConfig { theme = shared.theme, inverted = model.inverted } <|
+      playground
         { title = "Breadcrumb"
+        , toMsg = UpdateConfig
+        , theme = shared.theme
+        , inverted = model.inverted
         , preview =
             [ breadcrumb_ options
                 [ { label = "Home", url = "/" }

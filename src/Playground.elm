@@ -16,20 +16,20 @@ type alias ConfigSection model =
 
 
 playground :
-    (Config.Msg { model | inverted : Bool } -> msg)
-    -> { theme : Theme, inverted : Bool }
-    ->
-        { title : String
-        , preview : List (Html msg)
-        , configSections : List (ConfigSection { model | inverted : Bool })
-        }
+    { title : String
+    , toMsg : Config.Msg { model | inverted : Bool } -> msg
+    , theme : Theme
+    , inverted : Bool
+    , preview : List (Html msg)
+    , configSections : List (ConfigSection { model | inverted : Bool })
+    }
     -> Html msg
-playground msg { theme, inverted } { title, preview, configSections } =
+playground { title, toMsg, theme, inverted, preview, configSections } =
     div []
         [ header
             [ css [ displayFlex, justifyContent spaceBetween ] ]
             [ Header.header { theme = theme } [] [ text title ]
-            , Html.map msg <|
+            , Html.map toMsg <|
                 div [ css [] ]
                     [ Config.bool
                         { id = "inverted"
@@ -49,7 +49,7 @@ playground msg { theme, inverted } { title, preview, configSections } =
                 ]
             ]
             [ previewPanel { inverted = inverted } preview
-            , configPanel msg configSections
+            , configPanel toMsg configSections
             ]
         ]
 
@@ -82,8 +82,8 @@ previewPanel { inverted } previewSections =
 
 
 configPanel : (Config.Msg model -> msg) -> List (ConfigSection model) -> Html msg
-configPanel msg configSections =
-    Html.map msg <|
+configPanel toMsg configSections =
+    Html.map toMsg <|
         aside
             [ css
                 [ padding (em 1)

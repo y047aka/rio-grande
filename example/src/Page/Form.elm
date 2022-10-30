@@ -56,8 +56,11 @@ update msg model =
 
 view : Shared.Model -> Model -> List (Html Msg)
 view shared model =
-    [ configAndPreview UpdateConfig { theme = shared.theme, inverted = False } <|
+    [ configAndPreview
         { title = "Form"
+        , toMsg = UpdateConfig
+        , theme = shared.theme
+        , inverted = False
         , preview =
             [ form []
                 [ twoFields []
@@ -127,8 +130,11 @@ view shared model =
               }
             ]
         }
-    , configAndPreview UpdateConfig { theme = shared.theme, inverted = False } <|
+    , configAndPreview
         { title = "Field"
+        , toMsg = UpdateConfig
+        , theme = shared.theme
+        , inverted = False
         , preview =
             [ form []
                 [ field
@@ -142,8 +148,11 @@ view shared model =
             ]
         , configSections = []
         }
-    , configAndPreview UpdateConfig { theme = shared.theme, inverted = False } <|
+    , configAndPreview
         { title = "Fields"
+        , toMsg = UpdateConfig
+        , theme = shared.theme
+        , inverted = False
         , preview =
             [ form []
                 [ fields []
@@ -173,8 +182,11 @@ view shared model =
             ]
         , configSections = []
         }
-    , configAndPreview UpdateConfig { theme = shared.theme, inverted = False } <|
+    , configAndPreview
         { title = ""
+        , toMsg = UpdateConfig
+        , theme = shared.theme
+        , inverted = False
         , preview =
             [ form []
                 [ threeFields []
@@ -204,8 +216,11 @@ view shared model =
             ]
         , configSections = []
         }
-    , configAndPreview UpdateConfig { theme = shared.theme, inverted = False } <|
+    , configAndPreview
         { title = "Text Area"
+        , toMsg = UpdateConfig
+        , theme = shared.theme
+        , inverted = False
         , preview =
             [ form []
                 [ field
@@ -226,8 +241,11 @@ view shared model =
             ]
         , configSections = []
         }
-    , configAndPreview UpdateConfig { theme = shared.theme, inverted = False } <|
+    , configAndPreview
         { title = "Checkbox"
+        , toMsg = UpdateConfig
+        , theme = shared.theme
+        , inverted = False
         , preview =
             [ form []
                 [ field
