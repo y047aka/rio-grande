@@ -1,10 +1,10 @@
 module Page.Breadcrumb exposing (Model, Msg, init, update, view)
 
 import Config
-import ConfigAndPreview exposing (configAndPreview)
 import Data.Theme exposing (Theme(..))
 import Effect exposing (Effect)
 import Html.Styled as Html exposing (Html)
+import Playground exposing (playground)
 import Shared
 import Types exposing (Size(..), sizeFromString, sizeToString)
 import UI.Breadcrumb exposing (Divider(..), bigBreadCrumb, dividerFromString, dividerToString, hugeBreadCrumb, largeBreadCrumb, massiveBreadCrumb, mediumBreadCrumb, miniBreadCrumb, smallBreadCrumb, tinyBreadCrumb)
@@ -83,7 +83,7 @@ view shared model =
                 Massive ->
                     massiveBreadCrumb
       in
-      configAndPreview UpdateConfig { theme = shared.theme, inverted = model.inverted } <|
+      playground UpdateConfig { theme = shared.theme, inverted = model.inverted, setter = \m -> { m | inverted = not m.inverted } } <|
         { title = "Breadcrumb"
         , preview =
             [ breadcrumb_ options
@@ -110,17 +110,7 @@ view shared model =
               }
             , { label = "Variations"
               , configs =
-                    [ { label = ""
-                      , config =
-                            Config.bool
-                                { id = "inverted"
-                                , label = "Inverted"
-                                , bool = model.inverted
-                                , setter = \m -> { m | inverted = not m.inverted }
-                                }
-                      , note = "A breadcrumb can be inverted"
-                      }
-                    , { label = "Size"
+                    [ { label = "Size"
                       , config =
                             Config.select
                                 { value = model.size
