@@ -16,15 +16,15 @@ type alias ConfigSection model =
 
 
 playground :
-    (Config.Msg model -> msg)
-    -> { theme : Theme, inverted : Bool, setter : model -> model }
+    (Config.Msg { model | inverted : Bool } -> msg)
+    -> { theme : Theme, inverted : Bool }
     ->
         { title : String
         , preview : List (Html msg)
-        , configSections : List (ConfigSection model)
+        , configSections : List (ConfigSection { model | inverted : Bool })
         }
     -> Html msg
-playground msg { theme, inverted, setter } { title, preview, configSections } =
+playground msg { theme, inverted } { title, preview, configSections } =
     div []
         [ header
             [ css [ displayFlex, justifyContent spaceBetween ] ]
@@ -35,7 +35,7 @@ playground msg { theme, inverted, setter } { title, preview, configSections } =
                         { id = "inverted"
                         , label = "Inverted"
                         , bool = inverted
-                        , setter = setter
+                        , setter = \m -> { m | inverted = not m.inverted }
                         }
                     ]
             ]
