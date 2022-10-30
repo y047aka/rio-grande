@@ -115,7 +115,10 @@ routing url model =
                                     |> Tuple.mapSecond Effect.fromCmd
                                     |> updateWith ProgressModel ProgressMsg
                 in
-                ( { model | subModel = subModel }
+                ( { model
+                    | url = url
+                    , subModel = subModel
+                  }
                 , Effect.toCmd ( Shared, Page ) effect
                 )
            )
