@@ -1,19 +1,14 @@
 {
   "scripts": {
-    "watch:html": "cpx -w index.html dist",
-    "watch:elm": "elm-live src/Main.elm --dir=dist --start-page=index.html --pushstate --hot --open -- --debug --output=dist/elm.js",
-    "compile:html": "cpx index.html dist",
-    "compile:elm": "elm make src/Main.elm --optimize --output=dist/elm.js",
-    "start": "run-pty % npm run watch:html % npm run watch:elm",
-    "build": "npm run compile:html & npm run compile:elm"
-  },
-  "dependencies": {
-    "cpx2": "^4.2.0",
-    "elm": "^0.19.1-5"
+    "start": "run-pty % elm-watch hot % npm run esbuild -- --serve=9000 --servedir=public",
+    "build": "elm-watch make --optimize && npm run esbuild -- --minify",
+    "esbuild": "esbuild app.ts --bundle --outdir=public/build --public-path=/build/"
   },
   "devDependencies": {
+    "elm": "^0.19.1-5",
     "elm-format": "^0.8.5",
-    "elm-live": "^4.0.2",
+    "elm-watch": "^1.1.2",
+    "esbuild": "^0.17.11",
     "run-pty": "^4.0.3"
   }
 }
