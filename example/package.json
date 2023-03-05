@@ -4,16 +4,16 @@
     "watch:elm": "elm-live src/Main.elm --dir=dist --start-page=index.html --pushstate --hot --open -- --debug --output=dist/elm.js",
     "compile:html": "cpx index.html dist",
     "compile:elm": "elm make src/Main.elm --optimize --output=dist/elm.js",
-    "start": "npm-run-all -p watch:*",
-    "build": "npm-run-all -p compile:*"
+    "start": "run-pty % npm run watch:html % npm run watch:elm",
+    "build": "npm run compile:html & npm run compile:elm"
   },
   "dependencies": {
     "cpx2": "^4.2.0",
-    "elm": "^0.19.1-5",
-    "npm-run-all2": "^6.0.2"
+    "elm": "^0.19.1-5"
   },
   "devDependencies": {
     "elm-format": "^0.8.5",
-    "elm-live": "^4.0.2"
+    "elm-live": "^4.0.2",
+    "run-pty": "^4.0.3"
   }
 }
