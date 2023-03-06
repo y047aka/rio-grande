@@ -10,8 +10,9 @@ module Config exposing
 
 -}
 
-import Html.Styled as Html exposing (Html, div, input, label, text)
-import Html.Styled.Attributes exposing (checked, for, id, name, selected, type_, value)
+import Css exposing (color, column, displayFlex, flexDirection, hex, property)
+import Html.Styled as Html exposing (Html, div, input, p, text)
+import Html.Styled.Attributes exposing (checked, css, for, id, name, selected, type_, value)
 import Html.Styled.Events exposing (onClick, onInput)
 import Types exposing (FormState(..))
 import UI.Button exposing (button, labeledButton)
@@ -39,53 +40,63 @@ update msg =
             identity
 
 
+field : { label : String, note : String } -> Html (Msg model) -> Html (Msg model)
+field { label, note } child =
+    div [ css [ displayFlex, flexDirection column, property "gap" "5px" ] ]
+        [ Html.label [] [ text label ]
+        , child
+        , p [ css [ color (hex "#999") ] ] [ text note ]
+        ]
+
+
 string :
     { label : String
     , value : String
     , setter : String -> model -> model
+    , note : String
     }
     -> Html (Msg model)
 string c =
-    Input.input []
-        [ if c.label /= "" then
-            div [] [ text c.label ]
-
-          else
-            text ""
-        , input [ type_ "text", value c.value, onInput (c.setter >> Update) ] []
-        ]
+    field { label = c.label, note = c.note } <|
+        Input.input []
+            [ input [ type_ "text", value c.value, onInput (c.setter >> Update) ] [] ]
 
 
 bool :
-    { id : String
-    , label : String
+    { label : String
+    , id : String
     , bool : Bool
     , setter : model -> model
+    , note : String
     }
     -> Html (Msg model)
 bool c =
-    Checkbox.toggleCheckbox
-        { id = c.id
-        , label = c.label
-        , checked = c.bool
-        , disabled = False
-        , onClick = Update c.setter
-        }
+    field { label = "", note = c.note } <|
+        Checkbox.toggleCheckbox
+            { id = c.id
+            , label = c.label
+            , checked = c.bool
+            , disabled = False
+            , onClick = Update c.setter
+            }
 
 
 select :
-    { value : option
+    { label : String
+    , value : option
     , options : List option
     , fromString : String -> Maybe option
     , toString : option -> String
     , setter : option -> model -> model
+    , note : String
     }
     -> Html (Msg model)
 select c =
-    Html.select [ onInput (c.fromString >> Maybe.withDefault c.value >> c.setter >> Update) ]
-        (List.map (\option -> Html.option [ value (c.toString option), selected (c.value == option) ] [ text (c.toString option) ])
-            c.options
-        )
+    field { label = c.label, note = c.note } <|
+        Html.select [ onInput (c.fromString >> Maybe.withDefault c.value >> c.setter >> Update) ]
+            (List.map (\option -> Html.option [ value (c.toString option), selected (c.value == option) ] [ text (c.toString option) ])
+                c.options
+            )
 
 
 radio :
@@ -115,16 +126,17 @@ radio c =
                         , onInput (c.fromString >> Maybe.withDefault c.value >> c.setter >> Update)
                         ]
                         []
-                    , label [ for prefixedId ] [ text (c.toString option) ]
+                    , Html.label [ for prefixedId ] [ text (c.toString option) ]
                     ]
             )
             c.options
 
 
-counter : { value : Float, toString : Float -> String } -> Html (Msg model)
+counter : { label : String, value : Float, toString : Float -> String, note : String } -> Html (Msg model)
 counter c =
-    labeledButton []
-        [ button [ onClick CounterMinus ] [ text "-" ]
-        , basicLabel [] [ text (c.toString c.value) ]
-        , button [ onClick CounterPlus ] [ text "+" ]
-        ]
+    field { label = c.label, note = c.note } <|
+        labeledButton []
+            [ button [ onClick CounterMinus ] [ text "-" ]
+            , basicLabel [] [ text (c.toString c.value) ]
+            , button [ onClick CounterPlus ] [ text "+" ]
+            ]

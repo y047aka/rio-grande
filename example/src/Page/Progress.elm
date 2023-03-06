@@ -118,74 +118,67 @@ view shared model =
         , configSections =
             [ { label = "Bar"
               , configs =
-                    [ { label = ""
-                      , config =
-                            Config.counter
-                                { value = model.progressValue
-                                , toString = \value -> String.fromFloat value ++ "%"
-                                }
-                      , note = "A progress element can contain a bar visually indicating progress"
-                      }
+                    [ Config.counter
+                        { label = ""
+                        , value = model.progressValue
+                        , toString = \value -> String.fromFloat value ++ "%"
+                        , note = "A progress element can contain a bar visually indicating progress"
+                        }
                     ]
               }
             , { label = "Types"
               , configs =
-                    [ { label = ""
-                      , config =
-                            Config.bool
-                                { id = "indicating"
-                                , label = "Indicating"
-                                , bool = model.indicating
-                                , setter =
-                                    \m ->
-                                        let
-                                            newIndicating =
-                                                not m.indicating
-                                        in
-                                        { m
-                                            | indicating = newIndicating
-                                            , label =
-                                                if newIndicating then
-                                                    m.label
+                    [ Config.bool
+                        { id = "indicating"
+                        , label = "Indicating"
+                        , bool = model.indicating
+                        , setter =
+                            \m ->
+                                let
+                                    newIndicating =
+                                        not m.indicating
+                                in
+                                { m
+                                    | indicating = newIndicating
+                                    , label =
+                                        if newIndicating then
+                                            m.label
 
-                                                else
-                                                    "Uploading Files"
-                                        }
-                                            |> updatelabelOnIndicating
+                                        else
+                                            "Uploading Files"
                                 }
-                      , note = "An indicating progress bar visually indicates the current level of progress of a task"
-                      }
+                                    |> updatelabelOnIndicating
+                        , note = "An indicating progress bar visually indicates the current level of progress of a task"
+                        }
                     ]
               }
             , { label = "States"
               , configs =
-                    [ { label = ""
-                      , config =
-                            Config.select
-                                { value = model.state
-                                , options = [ Default, Active, Success, Warning, Error, Disabled ]
-                                , fromString = Progress.stateFromString
-                                , toString = Progress.stateToString
-                                , setter =
-                                    \state m ->
-                                        { m
-                                            | state = state
-                                            , label =
-                                                case state of
-                                                    Success ->
-                                                        "Everything worked, your file is all ready."
+                    [ Config.select
+                        { label = ""
+                        , value = model.state
+                        , options = [ Default, Active, Success, Warning, Error, Disabled ]
+                        , fromString = Progress.stateFromString
+                        , toString = Progress.stateToString
+                        , setter =
+                            \state m ->
+                                { m
+                                    | state = state
+                                    , label =
+                                        case state of
+                                            Success ->
+                                                "Everything worked, your file is all ready."
 
-                                                    Warning ->
-                                                        "Your file didn't meet the minimum resolution requirements."
+                                            Warning ->
+                                                "Your file didn't meet the minimum resolution requirements."
 
-                                                    Error ->
-                                                        "There was an error."
+                                            Error ->
+                                                "There was an error."
 
-                                                    _ ->
-                                                        m.label
-                                        }
+                                            _ ->
+                                                m.label
                                 }
-                      , note =
+                        , note =
                             case model.state of
                                 Active ->
                                     "A progress bar can show activity"
@@ -204,29 +197,23 @@ view shared model =
 
                                 _ ->
                                     ""
-                      }
+                        }
                     ]
               }
             , { label = "Content"
               , configs =
-                    [ { label = "Progress"
-                      , config =
-                            Config.string
-                                { label = ""
-                                , value = model.progressLabel
-                                , setter = \string m -> { m | progressLabel = string }
-                                }
-                      , note = "A progress bar can contain a text value indicating current progress"
-                      }
-                    , { label = "Label"
-                      , config =
-                            Config.string
-                                { label = ""
-                                , value = model.label
-                                , setter = \string m -> { m | label = string }
-                                }
-                      , note = "A progress element can contain a label"
-                      }
+                    [ Config.string
+                        { label = "Progress"
+                        , value = model.progressLabel
+                        , setter = \string m -> { m | progressLabel = string }
+                        , note = "A progress bar can contain a text value indicating current progress"
+                        }
+                    , Config.string
+                        { label = "Label"
+                        , value = model.label
+                        , setter = \string m -> { m | label = string }
+                        , note = "A progress element can contain a label"
+                        }
                     ]
               }
             ]

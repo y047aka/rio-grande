@@ -98,32 +98,28 @@ view shared model =
         , configSections =
             [ { label = "Content"
               , configs =
-                    [ { label = "Divider"
-                      , config =
-                            Config.select
-                                { value = model.divider
-                                , options = [ Slash, RightChevron ]
-                                , fromString = dividerFromString
-                                , toString = dividerToString
-                                , setter = \divider m -> { m | divider = divider }
-                                }
-                      , note = "A breadcrumb can contain a divider to show the relationship between sections, this can be formatted as an icon or text."
-                      }
+                    [ Config.select
+                        { label = "Divider"
+                        , value = model.divider
+                        , options = [ Slash, RightChevron ]
+                        , fromString = dividerFromString
+                        , toString = dividerToString
+                        , setter = \divider m -> { m | divider = divider }
+                        , note = "A breadcrumb can contain a divider to show the relationship between sections, this can be formatted as an icon or text."
+                        }
                     ]
               }
             , { label = "Variations"
               , configs =
-                    [ { label = "Size"
-                      , config =
-                            Config.select
-                                { value = model.size
-                                , options = [ Mini, Tiny, Small, Medium, Large, Big, Huge, Massive ]
-                                , fromString = sizeFromString
-                                , toString = sizeToString
-                                , setter = \size m -> { m | size = size }
-                                }
-                      , note = "A breadcrumb can vary in size"
-                      }
+                    [ Config.select
+                        { label = "Size"
+                        , value = model.size
+                        , options = [ Mini, Tiny, Small, Medium, Large, Big, Huge, Massive ]
+                        , fromString = sizeFromString
+                        , toString = sizeToString
+                        , setter = \size m -> { m | size = size }
+                        , note = "A breadcrumb can vary in size"
+                        }
                     ]
               }
             ]

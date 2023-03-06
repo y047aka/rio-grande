@@ -100,16 +100,14 @@ view shared model =
         , configSections =
             [ { label = "Form States"
               , configs =
-                    [ { label = ""
-                      , config =
-                            Config.select
-                                { value = model.state
-                                , options = [ Default, Error, Warning, Success, Info ]
-                                , fromString = formStateFromString
-                                , toString = formStateToString
-                                , setter = \state m -> { m | state = state }
-                                }
-                      , note =
+                    [ Config.select
+                        { label = ""
+                        , value = model.state
+                        , options = [ Default, Error, Warning, Success, Info ]
+                        , fromString = formStateFromString
+                        , toString = formStateToString
+                        , setter = \state m -> { m | state = state }
+                        , note =
                             case model.state of
                                 Error ->
                                     "Individual fields may display an error state"
@@ -125,7 +123,7 @@ view shared model =
 
                                 Default ->
                                     ""
-                      }
+                        }
                     ]
               }
             ]

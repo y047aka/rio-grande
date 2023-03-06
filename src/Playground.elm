@@ -4,14 +4,14 @@ import Config
 import Css exposing (..)
 import Css.Palette as Palette exposing (darkPalette, palette, setBackground, setColor)
 import Data.Theme exposing (Theme(..))
-import Html.Styled as Html exposing (Html, aside, div, header, label, p, text)
+import Html.Styled as Html exposing (Html, aside, div, header, text)
 import Html.Styled.Attributes exposing (css)
 import UI.Header as Header
 
 
 type alias ConfigSection model =
     { label : String
-    , configs : List { label : String, config : Html (Config.Msg model), note : String }
+    , configs : List (Html (Config.Msg model))
     }
 
 
@@ -36,6 +36,7 @@ playground { title, toMsg, theme, inverted, preview, configSections } =
                         , label = "Inverted"
                         , bool = inverted
                         , setter = \m -> { m | inverted = not m.inverted }
+                        , note = ""
                         }
                     ]
             ]
@@ -112,15 +113,7 @@ configPanel toMsg configSections =
                                 ]
                             ]
                             [ text configSection.label ]
-                            :: List.map
-                                (\field ->
-                                    div [ css [ displayFlex, flexDirection column, property "gap" "5px" ] ]
-                                        [ label [] [ text field.label ]
-                                        , field.config
-                                        , p [ css [ color (hex "#999") ] ] [ text field.note ]
-                                        ]
-                                )
-                                configSection.configs
+                            :: configSection.configs
                         )
                 )
                 configSections
