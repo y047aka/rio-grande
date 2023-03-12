@@ -1,6 +1,5 @@
 module Page.Breadcrumb exposing (Model, Msg, init, update, view)
 
-import Config
 import Data.Theme exposing (Theme(..))
 import Effect exposing (Effect)
 import Html.Styled as Html exposing (Html)
@@ -97,7 +96,7 @@ view shared model =
         , configSections =
             [ { label = ""
               , configs =
-                    [ Config.bool
+                    [ Playground.bool
                         { id = "inverted"
                         , label = "Inverted"
                         , bool = model.inverted
@@ -108,7 +107,7 @@ view shared model =
               }
             , { label = "Content"
               , configs =
-                    [ Config.select
+                    [ Playground.select
                         { label = "Divider"
                         , value = model.divider
                         , options = [ Slash, RightChevron ]
@@ -121,7 +120,7 @@ view shared model =
               }
             , { label = "Variations"
               , configs =
-                    [ Config.select
+                    [ Playground.select
                         { label = "Size"
                         , value = model.size
                         , options = [ Mini, Tiny, Small, Medium, Large, Big, Huge, Massive ]

@@ -1,6 +1,5 @@
 module Page.Form exposing (Model, Msg, init, update, view)
 
-import Config
 import Data.Theme exposing (Theme(..))
 import Html.Styled as Html exposing (Html, text)
 import Html.Styled.Attributes exposing (placeholder, rows, type_)
@@ -99,7 +98,7 @@ view shared model =
         , configSections =
             [ { label = "Form States"
               , configs =
-                    [ Config.select
+                    [ Playground.select
                         { label = ""
                         , value = model.state
                         , options = [ Default, Error, Warning, Success, Info ]

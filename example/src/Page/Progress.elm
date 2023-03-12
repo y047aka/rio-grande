@@ -1,6 +1,5 @@
 module Page.Progress exposing (Model, Msg, init, update, view)
 
-import Config
 import Css exposing (int)
 import Data.Theme exposing (Theme(..))
 import Html.Styled as Html exposing (Html)
@@ -117,7 +116,7 @@ view shared model =
         , configSections =
             [ { label = "Bar"
               , configs =
-                    [ Config.counter
+                    [ Playground.counter
                         { label = ""
                         , value = model.progressValue
                         , toString = \value -> String.fromFloat value ++ "%"
@@ -129,7 +128,7 @@ view shared model =
               }
             , { label = "Types"
               , configs =
-                    [ Config.bool
+                    [ Playground.bool
                         { id = "indicating"
                         , label = "Indicating"
                         , bool = model.indicating
@@ -157,7 +156,7 @@ view shared model =
               }
             , { label = "States"
               , configs =
-                    [ Config.select
+                    [ Playground.select
                         { label = ""
                         , value = model.state
                         , options = [ Default, Active, Success, Warning, Error, Disabled ]
@@ -207,13 +206,13 @@ view shared model =
               }
             , { label = "Content"
               , configs =
-                    [ Config.string
+                    [ Playground.string
                         { label = "Progress"
                         , value = model.progressLabel
                         , onInput = (\string c -> { c | progressLabel = string }) >> UpdateConfig
                         , note = "A progress bar can contain a text value indicating current progress"
                         }
-                    , Config.string
+                    , Playground.string
                         { label = "Label"
                         , value = model.label
                         , onInput = (\string c -> { c | label = string }) >> UpdateConfig
