@@ -29,32 +29,32 @@ field { label, note } child =
 string :
     { label : String
     , value : String
-    , setter : String -> msg
+    , onInput : String -> msg
     , note : String
     }
     -> Html msg
-string c =
-    field { label = c.label, note = c.note } <|
+string p =
+    field { label = p.label, note = p.note } <|
         Input.input []
-            [ input [ type_ "text", value c.value, onInput c.setter ] [] ]
+            [ input [ type_ "text", value p.value, onInput p.onInput ] [] ]
 
 
 bool :
     { label : String
     , id : String
     , bool : Bool
-    , setter : msg
+    , onClick : msg
     , note : String
     }
     -> Html msg
-bool c =
-    field { label = "", note = c.note } <|
+bool p =
+    field { label = "", note = p.note } <|
         Checkbox.toggleCheckbox
-            { id = c.id
-            , label = c.label
-            , checked = c.bool
+            { id = p.id
+            , label = p.label
+            , checked = p.bool
             , disabled = False
-            , onClick = c.setter
+            , onClick = p.onClick
             }
 
 
@@ -64,15 +64,15 @@ select :
     , options : List option
     , fromString : String -> Maybe option
     , toString : option -> String
-    , setter : option -> msg
+    , onChange : option -> msg
     , note : String
     }
     -> Html msg
-select c =
-    field { label = c.label, note = c.note } <|
-        Html.select [ onInput (c.fromString >> Maybe.withDefault c.value >> c.setter) ]
-            (List.map (\option -> Html.option [ value (c.toString option), selected (c.value == option) ] [ text (c.toString option) ])
-                c.options
+select p =
+    field { label = p.label, note = p.note } <|
+        Html.select [ onInput (p.fromString >> Maybe.withDefault p.value >> p.onChange) ]
+            (List.map (\option -> Html.option [ value (p.toString option), selected (p.value == option) ] [ text (p.toString option) ])
+                p.options
             )
 
 
@@ -82,31 +82,31 @@ radio :
     , options : List option
     , fromString : String -> Maybe option
     , toString : option -> String
-    , setter : option -> msg
+    , onChange : option -> msg
     }
     -> Html msg
-radio c =
+radio p =
     div [] <|
         List.map
             (\option ->
                 let
                     prefixedId =
-                        c.name ++ "_" ++ c.toString option
+                        p.name ++ "_" ++ p.toString option
                 in
                 div []
                     [ input
                         [ id prefixedId
                         , type_ "radio"
-                        , name c.name
-                        , value (c.toString option)
-                        , checked (c.value == option)
-                        , onInput (c.fromString >> Maybe.withDefault c.value >> c.setter)
+                        , name p.name
+                        , value (p.toString option)
+                        , checked (p.value == option)
+                        , onInput (p.fromString >> Maybe.withDefault p.value >> p.onChange)
                         ]
                         []
-                    , Html.label [ for prefixedId ] [ text (c.toString option) ]
+                    , Html.label [ for prefixedId ] [ text (p.toString option) ]
                     ]
             )
-            c.options
+            p.options
 
 
 counter :
@@ -118,10 +118,10 @@ counter :
     , note : String
     }
     -> Html msg
-counter c =
-    field { label = c.label, note = c.note } <|
+counter p =
+    field { label = p.label, note = p.note } <|
         labeledButton []
-            [ button [ onClick c.onClickMinus ] [ text "-" ]
-            , basicLabel [] [ text (c.toString c.value) ]
-            , button [ onClick c.onClickPlus ] [ text "+" ]
+            [ button [ onClick p.onClickMinus ] [ text "-" ]
+            , basicLabel [] [ text (p.toString p.value) ]
+            , button [ onClick p.onClickPlus ] [ text "+" ]
             ]

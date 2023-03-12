@@ -105,7 +105,7 @@ view shared model =
                         , options = [ Default, Error, Warning, Success, Info ]
                         , fromString = formStateFromString
                         , toString = formStateToString
-                        , setter = (\state m -> { m | state = state }) >> UpdateConfig
+                        , onChange = (\state c -> { c | state = state }) >> UpdateConfig
                         , note =
                             case model.state of
                                 Error ->

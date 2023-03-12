@@ -34,7 +34,7 @@ playground { title, toMsg, theme, inverted, preview, configSections } =
                     { id = "inverted"
                     , label = "Inverted"
                     , bool = inverted
-                    , setter = (\m -> { m | inverted = not m.inverted }) |> toMsg
+                    , onClick = (\c -> { c | inverted = not c.inverted }) |> toMsg
                     , note = ""
                     }
                 ]

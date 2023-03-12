@@ -133,17 +133,17 @@ view shared model =
                         { id = "indicating"
                         , label = "Indicating"
                         , bool = model.indicating
-                        , setter =
-                            (\m ->
+                        , onClick =
+                            (\c ->
                                 let
                                     newIndicating =
-                                        not m.indicating
+                                        not c.indicating
                                 in
-                                { m
+                                { c
                                     | indicating = newIndicating
                                     , label =
                                         if newIndicating then
-                                            m.label
+                                            c.label
 
                                         else
                                             "Uploading Files"
@@ -163,9 +163,9 @@ view shared model =
                         , options = [ Default, Active, Success, Warning, Error, Disabled ]
                         , fromString = Progress.stateFromString
                         , toString = Progress.stateToString
-                        , setter =
-                            (\state m ->
-                                { m
+                        , onChange =
+                            (\state c ->
+                                { c
                                     | state = state
                                     , label =
                                         case state of
@@ -179,7 +179,7 @@ view shared model =
                                                 "There was an error."
 
                                             _ ->
-                                                m.label
+                                                c.label
                                 }
                             )
                                 >> UpdateConfig
@@ -210,13 +210,13 @@ view shared model =
                     [ Config.string
                         { label = "Progress"
                         , value = model.progressLabel
-                        , setter = (\string m -> { m | progressLabel = string }) >> UpdateConfig
+                        , onInput = (\string c -> { c | progressLabel = string }) >> UpdateConfig
                         , note = "A progress bar can contain a text value indicating current progress"
                         }
                     , Config.string
                         { label = "Label"
                         , value = model.label
-                        , setter = (\string m -> { m | label = string }) >> UpdateConfig
+                        , onInput = (\string c -> { c | label = string }) >> UpdateConfig
                         , note = "A progress element can contain a label"
                         }
                     ]
