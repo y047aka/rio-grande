@@ -41,7 +41,9 @@ init =
 
 type Msg
     = NewProgress Int
-    | UpdateConfig (Config.Msg Model)
+    | CounterPlus
+    | CounterMinus
+    | UpdateConfig (Model -> Model)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -67,16 +69,14 @@ update msg model =
             , Cmd.none
             )
 
-        UpdateConfig configMsg ->
-            case configMsg of
-                Config.Update updater ->
-                    ( updater model, Cmd.none )
+        CounterPlus ->
+            ( model, Random.generate NewProgress (Random.int 10 15) )
 
-                Config.CounterPlus ->
-                    ( model, Random.generate NewProgress (Random.int 10 15) )
+        CounterMinus ->
+            ( model, Random.generate NewProgress (Random.int -15 -10) )
 
-                Config.CounterMinus ->
-                    ( model, Random.generate NewProgress (Random.int -15 -10) )
+        UpdateConfig updater ->
+            ( updater model, Cmd.none )
 
 
 updatelabelOnIndicating : Model -> Model
@@ -103,7 +103,6 @@ view : Shared.Model -> Model -> List (Html Msg)
 view shared model =
     [ configAndPreview
         { title = "Progress"
-        , toMsg = UpdateConfig
         , theme = shared.theme
         , inverted = False
         , preview =
@@ -122,6 +121,8 @@ view shared model =
                         { label = ""
                         , value = model.progressValue
                         , toString = \value -> String.fromFloat value ++ "%"
+                        , onClickPlus = CounterPlus
+                        , onClickMinus = CounterMinus
                         , note = "A progress element can contain a bar visually indicating progress"
                         }
                     ]
@@ -133,7 +134,7 @@ view shared model =
                         , label = "Indicating"
                         , bool = model.indicating
                         , setter =
-                            \m ->
+                            (\m ->
                                 let
                                     newIndicating =
                                         not m.indicating
@@ -148,6 +149,8 @@ view shared model =
                                             "Uploading Files"
                                 }
                                     |> updatelabelOnIndicating
+                            )
+                                |> UpdateConfig
                         , note = "An indicating progress bar visually indicates the current level of progress of a task"
                         }
                     ]
@@ -161,7 +164,7 @@ view shared model =
                         , fromString = Progress.stateFromString
                         , toString = Progress.stateToString
                         , setter =
-                            \state m ->
+                            (\state m ->
                                 { m
                                     | state = state
                                     , label =
@@ -178,6 +181,8 @@ view shared model =
                                             _ ->
                                                 m.label
                                 }
+                            )
+                                >> UpdateConfig
                         , note =
                             case model.state of
                                 Active ->
@@ -205,13 +210,13 @@ view shared model =
                     [ Config.string
                         { label = "Progress"
                         , value = model.progressLabel
-                        , setter = \string m -> { m | progressLabel = string }
+                        , setter = (\string m -> { m | progressLabel = string }) >> UpdateConfig
                         , note = "A progress bar can contain a text value indicating current progress"
                         }
                     , Config.string
                         { label = "Label"
                         , value = model.label
-                        , setter = \string m -> { m | label = string }
+                        , setter = (\string m -> { m | label = string }) >> UpdateConfig
                         , note = "A progress element can contain a label"
                         }
                     ]

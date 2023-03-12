@@ -36,14 +36,14 @@ init =
 
 
 type Msg
-    = UpdateConfig (Config.Msg Model)
+    = UpdateConfig (Model -> Model)
 
 
 update : Msg -> Model -> ( Model, Effect Msg )
 update msg model =
     case msg of
-        UpdateConfig configMsg ->
-            ( Config.update configMsg model, Effect.none )
+        UpdateConfig updater ->
+            ( updater model, Effect.none )
 
 
 
@@ -104,7 +104,7 @@ view shared model =
                         , options = [ Slash, RightChevron ]
                         , fromString = dividerFromString
                         , toString = dividerToString
-                        , setter = \divider m -> { m | divider = divider }
+                        , setter = (\divider m -> { m | divider = divider }) >> UpdateConfig
                         , note = "A breadcrumb can contain a divider to show the relationship between sections, this can be formatted as an icon or text."
                         }
                     ]
@@ -117,7 +117,7 @@ view shared model =
                         , options = [ Mini, Tiny, Small, Medium, Large, Big, Huge, Massive ]
                         , fromString = sizeFromString
                         , toString = sizeToString
-                        , setter = \size m -> { m | size = size }
+                        , setter = (\size m -> { m | size = size }) >> UpdateConfig
                         , note = "A breadcrumb can vary in size"
                         }
                     ]

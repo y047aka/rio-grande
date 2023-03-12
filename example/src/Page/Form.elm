@@ -37,7 +37,7 @@ init =
 
 type Msg
     = ToggleChecked
-    | UpdateConfig (Config.Msg Model)
+    | UpdateConfig (Model -> Model)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -46,8 +46,8 @@ update msg model =
         ToggleChecked ->
             ( { model | checked = not model.checked }, Cmd.none )
 
-        UpdateConfig configMsg ->
-            ( Config.update configMsg model, Cmd.none )
+        UpdateConfig updater ->
+            ( updater model, Cmd.none )
 
 
 
@@ -58,7 +58,6 @@ view : Shared.Model -> Model -> List (Html Msg)
 view shared model =
     [ configAndPreview
         { title = "Form"
-        , toMsg = UpdateConfig
         , theme = shared.theme
         , inverted = False
         , preview =
@@ -106,7 +105,7 @@ view shared model =
                         , options = [ Default, Error, Warning, Success, Info ]
                         , fromString = formStateFromString
                         , toString = formStateToString
-                        , setter = \state m -> { m | state = state }
+                        , setter = (\state m -> { m | state = state }) >> UpdateConfig
                         , note =
                             case model.state of
                                 Error ->
@@ -130,7 +129,6 @@ view shared model =
         }
     , configAndPreview
         { title = "Field"
-        , toMsg = UpdateConfig
         , theme = shared.theme
         , inverted = False
         , preview =
@@ -148,7 +146,6 @@ view shared model =
         }
     , configAndPreview
         { title = "Fields"
-        , toMsg = UpdateConfig
         , theme = shared.theme
         , inverted = False
         , preview =
@@ -182,7 +179,6 @@ view shared model =
         }
     , configAndPreview
         { title = ""
-        , toMsg = UpdateConfig
         , theme = shared.theme
         , inverted = False
         , preview =
@@ -216,7 +212,6 @@ view shared model =
         }
     , configAndPreview
         { title = "Text Area"
-        , toMsg = UpdateConfig
         , theme = shared.theme
         , inverted = False
         , preview =
@@ -241,7 +236,6 @@ view shared model =
         }
     , configAndPreview
         { title = "Checkbox"
-        , toMsg = UpdateConfig
         , theme = shared.theme
         , inverted = False
         , preview =

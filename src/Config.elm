@@ -1,11 +1,7 @@
-module Config exposing
-    ( Msg(..), update
-    , string, bool, radio, select, counter
-    )
+module Config exposing (string, bool, radio, select, counter)
 
 {-|
 
-@docs Msg, update
 @docs string, bool, radio, select, counter
 
 -}
@@ -21,26 +17,7 @@ import UI.Input as Input
 import UI.Label exposing (basicLabel)
 
 
-type Msg model
-    = Update (model -> model)
-    | CounterPlus
-    | CounterMinus
-
-
-update : Msg model -> model -> model
-update msg =
-    case msg of
-        Update f ->
-            f
-
-        CounterPlus ->
-            identity
-
-        CounterMinus ->
-            identity
-
-
-field : { label : String, note : String } -> Html (Msg model) -> Html (Msg model)
+field : { label : String, note : String } -> Html msg -> Html msg
 field { label, note } child =
     div [ css [ displayFlex, flexDirection column, property "gap" "5px" ] ]
         [ Html.label [] [ text label ]
@@ -52,24 +29,24 @@ field { label, note } child =
 string :
     { label : String
     , value : String
-    , setter : String -> model -> model
+    , setter : String -> msg
     , note : String
     }
-    -> Html (Msg model)
+    -> Html msg
 string c =
     field { label = c.label, note = c.note } <|
         Input.input []
-            [ input [ type_ "text", value c.value, onInput (c.setter >> Update) ] [] ]
+            [ input [ type_ "text", value c.value, onInput c.setter ] [] ]
 
 
 bool :
     { label : String
     , id : String
     , bool : Bool
-    , setter : model -> model
+    , setter : msg
     , note : String
     }
-    -> Html (Msg model)
+    -> Html msg
 bool c =
     field { label = "", note = c.note } <|
         Checkbox.toggleCheckbox
@@ -77,7 +54,7 @@ bool c =
             , label = c.label
             , checked = c.bool
             , disabled = False
-            , onClick = Update c.setter
+            , onClick = c.setter
             }
 
 
@@ -87,13 +64,13 @@ select :
     , options : List option
     , fromString : String -> Maybe option
     , toString : option -> String
-    , setter : option -> model -> model
+    , setter : option -> msg
     , note : String
     }
-    -> Html (Msg model)
+    -> Html msg
 select c =
     field { label = c.label, note = c.note } <|
-        Html.select [ onInput (c.fromString >> Maybe.withDefault c.value >> c.setter >> Update) ]
+        Html.select [ onInput (c.fromString >> Maybe.withDefault c.value >> c.setter) ]
             (List.map (\option -> Html.option [ value (c.toString option), selected (c.value == option) ] [ text (c.toString option) ])
                 c.options
             )
@@ -105,9 +82,9 @@ radio :
     , options : List option
     , fromString : String -> Maybe option
     , toString : option -> String
-    , setter : option -> model -> model
+    , setter : option -> msg
     }
-    -> Html (Msg model)
+    -> Html msg
 radio c =
     div [] <|
         List.map
@@ -123,7 +100,7 @@ radio c =
                         , name c.name
                         , value (c.toString option)
                         , checked (c.value == option)
-                        , onInput (c.fromString >> Maybe.withDefault c.value >> c.setter >> Update)
+                        , onInput (c.fromString >> Maybe.withDefault c.value >> c.setter)
                         ]
                         []
                     , Html.label [ for prefixedId ] [ text (c.toString option) ]
@@ -132,11 +109,19 @@ radio c =
             c.options
 
 
-counter : { label : String, value : Float, toString : Float -> String, note : String } -> Html (Msg model)
+counter :
+    { label : String
+    , value : Float
+    , toString : Float -> String
+    , onClickPlus : msg
+    , onClickMinus : msg
+    , note : String
+    }
+    -> Html msg
 counter c =
     field { label = c.label, note = c.note } <|
         labeledButton []
-            [ button [ onClick CounterMinus ] [ text "-" ]
+            [ button [ onClick c.onClickMinus ] [ text "-" ]
             , basicLabel [] [ text (c.toString c.value) ]
-            , button [ onClick CounterPlus ] [ text "+" ]
+            , button [ onClick c.onClickPlus ] [ text "+" ]
             ]
