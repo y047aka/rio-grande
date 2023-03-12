@@ -1,10 +1,10 @@
 module Page.Progress exposing (Model, Msg, init, update, view)
 
 import Config
-import ConfigAndPreview exposing (configAndPreview)
 import Css exposing (int)
 import Data.Theme exposing (Theme(..))
 import Html.Styled as Html exposing (Html)
+import Playground exposing (playground)
 import Random
 import Shared
 import UI.Progress as Progress exposing (State(..))
@@ -101,7 +101,7 @@ updatelabelOnIndicating model =
 
 view : Shared.Model -> Model -> List (Html Msg)
 view shared model =
-    [ configAndPreview
+    [ playground
         { title = "Progress"
         , theme = shared.theme
         , inverted = False

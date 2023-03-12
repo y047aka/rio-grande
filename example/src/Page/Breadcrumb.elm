@@ -85,7 +85,6 @@ view shared model =
       in
       playground
         { title = "Breadcrumb"
-        , toMsg = UpdateConfig
         , theme = shared.theme
         , inverted = model.inverted
         , preview =
@@ -96,7 +95,18 @@ view shared model =
                 ]
             ]
         , configSections =
-            [ { label = "Content"
+            [ { label = ""
+              , configs =
+                    [ Config.bool
+                        { id = "inverted"
+                        , label = "Inverted"
+                        , bool = model.inverted
+                        , onClick = (\c -> { c | inverted = not c.inverted }) |> UpdateConfig
+                        , note = ""
+                        }
+                    ]
+              }
+            , { label = "Content"
               , configs =
                     [ Config.select
                         { label = "Divider"

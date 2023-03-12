@@ -1,10 +1,10 @@
 module Page.Form exposing (Model, Msg, init, update, view)
 
 import Config
-import ConfigAndPreview exposing (configAndPreview)
 import Data.Theme exposing (Theme(..))
 import Html.Styled as Html exposing (Html, text)
 import Html.Styled.Attributes exposing (placeholder, rows, type_)
+import Playground exposing (playground)
 import Shared
 import Types exposing (FormState(..), formStateFromString, formStateToString)
 import UI.Button exposing (button)
@@ -56,7 +56,7 @@ update msg model =
 
 view : Shared.Model -> Model -> List (Html Msg)
 view shared model =
-    [ configAndPreview
+    [ playground
         { title = "Form"
         , theme = shared.theme
         , inverted = False
@@ -127,7 +127,7 @@ view shared model =
               }
             ]
         }
-    , configAndPreview
+    , playground
         { title = "Field"
         , theme = shared.theme
         , inverted = False
@@ -144,7 +144,7 @@ view shared model =
             ]
         , configSections = []
         }
-    , configAndPreview
+    , playground
         { title = "Fields"
         , theme = shared.theme
         , inverted = False
@@ -177,7 +177,7 @@ view shared model =
             ]
         , configSections = []
         }
-    , configAndPreview
+    , playground
         { title = ""
         , theme = shared.theme
         , inverted = False
@@ -210,7 +210,7 @@ view shared model =
             ]
         , configSections = []
         }
-    , configAndPreview
+    , playground
         { title = "Text Area"
         , theme = shared.theme
         , inverted = False
@@ -234,7 +234,7 @@ view shared model =
             ]
         , configSections = []
         }
-    , configAndPreview
+    , playground
         { title = "Checkbox"
         , theme = shared.theme
         , inverted = False

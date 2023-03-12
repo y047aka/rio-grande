@@ -1,10 +1,9 @@
 module Playground exposing (playground)
 
-import Config
 import Css exposing (..)
 import Css.Palette as Palette exposing (darkPalette, palette, setBackground, setColor)
 import Data.Theme exposing (Theme(..))
-import Html.Styled as Html exposing (Html, aside, div, header, text)
+import Html.Styled as Html exposing (Html, aside, div, text)
 import Html.Styled.Attributes exposing (css)
 import UI.Header as Header
 
@@ -17,28 +16,15 @@ type alias ConfigSection msg =
 
 playground :
     { title : String
-    , toMsg : ({ a | inverted : Bool } -> { a | inverted : Bool }) -> msg
     , theme : Theme
     , inverted : Bool
     , preview : List (Html msg)
     , configSections : List (ConfigSection msg)
     }
     -> Html msg
-playground { title, toMsg, theme, inverted, preview, configSections } =
+playground { title, theme, inverted, preview, configSections } =
     div []
-        [ header
-            [ css [ displayFlex, justifyContent spaceBetween ] ]
-            [ Header.header { theme = theme } [] [ text title ]
-            , div [ css [] ]
-                [ Config.bool
-                    { id = "inverted"
-                    , label = "Inverted"
-                    , bool = inverted
-                    , onClick = (\c -> { c | inverted = not c.inverted }) |> toMsg
-                    , note = ""
-                    }
-                ]
-            ]
+        [ Header.header { theme = theme } [] [ text title ]
         , div
             [ css
                 [ property "display" "grid"
