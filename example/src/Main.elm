@@ -6,6 +6,7 @@ import Effect exposing (Effect)
 import Html.Styled as Html exposing (a, text, toUnstyled)
 import Html.Styled.Attributes exposing (href)
 import Page.Breadcrumb as Breadcrumb
+import Page.Card as Card
 import Page.Form as Form
 import Page.Progress as Progress
 import Shared
@@ -44,6 +45,7 @@ type SubModel
     | BreadcrumbModel Breadcrumb.Model
     | FormModel Form.Model
     | ProgressModel Progress.Model
+    | CardModel Card.Model
 
 
 init : Shared.Flags -> Url -> Key -> ( Model, Cmd Msg )
@@ -74,6 +76,7 @@ type Page
     | Breadcrumb
     | Form
     | Progress
+    | Card
 
 
 parser : Parser (Page -> a) a
@@ -83,6 +86,7 @@ parser =
         , Url.Parser.map Breadcrumb (s "breadcrumb")
         , Url.Parser.map Form (s "form")
         , Url.Parser.map Progress (s "progress")
+        , Url.Parser.map Card (s "card")
         ]
 
 
@@ -114,6 +118,11 @@ routing url model =
                                 Progress.init
                                     |> Tuple.mapSecond Effect.fromCmd
                                     |> updateWith ProgressModel ProgressMsg
+
+                            Card ->
+                                Card.init
+                                    |> Tuple.mapSecond Effect.fromCmd
+                                    |> updateWith CardModel CardMsg
                 in
                 ( { model
                     | url = url
@@ -139,6 +148,7 @@ type PageMsg
     = BreadcrumbMsg Breadcrumb.Msg
     | FormMsg Form.Msg
     | ProgressMsg Progress.Msg
+    | CardMsg Card.Msg
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -182,6 +192,11 @@ update msg model =
                                 |> Tuple.mapSecond Effect.fromCmd
                                 |> updateWith ProgressModel ProgressMsg
 
+                        ( CardModel subModel_, CardMsg subMsg ) ->
+                            Card.update subMsg subModel_
+                                |> Tuple.mapSecond Effect.fromCmd
+                                |> updateWith CardModel CardMsg
+
                         _ ->
                             ( None, Effect.none )
             in
@@ -209,6 +224,7 @@ view { url, shared, subModel } =
             [ a [ href "/breadcrumb" ] [ text "Breadcrumb" ]
             , a [ href "/form" ] [ text "Form" ]
             , a [ href "/progress" ] [ text "Progress" ]
+            , a [ href "/card" ] [ text "Card" ]
             ]
 
         BreadcrumbModel subModel_ ->
@@ -219,6 +235,9 @@ view { url, shared, subModel } =
 
         ProgressModel subModel_ ->
             List.map (Html.map ProgressMsg) (Progress.view shared subModel_)
+
+        CardModel subModel_ ->
+            List.map (Html.map CardMsg) (Card.view shared subModel_)
     )
         |> List.map (Html.map Page)
         |> (\view_ ->
@@ -235,6 +254,9 @@ view { url, shared, subModel } =
 
                                 ProgressModel _ ->
                                     "Progress"
+
+                                CardModel _ ->
+                                    "Card"
 
                                 _ ->
                                     ""
