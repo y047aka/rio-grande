@@ -5,7 +5,6 @@ import Browser.Navigation as Nav exposing (Key)
 import Effect exposing (Effect)
 import Html.Styled as Html exposing (a, text, toUnstyled)
 import Html.Styled.Attributes exposing (href)
-import Page.Breadcrumb as Breadcrumb
 import Page.Card as Card
 import Page.Form as Form
 import Page.Progress as Progress
@@ -42,7 +41,6 @@ type alias Model =
 type SubModel
     = None
     | TopModel
-    | BreadcrumbModel Breadcrumb.Model
     | FormModel Form.Model
     | ProgressModel Progress.Model
     | CardModel Card.Model
@@ -73,7 +71,6 @@ init flags url key =
 type Page
     = NotFound
     | Top
-    | Breadcrumb
     | Form
     | Progress
     | Card
@@ -83,7 +80,6 @@ parser : Parser (Page -> a) a
 parser =
     Url.Parser.oneOf
         [ Url.Parser.map Top Url.Parser.top
-        , Url.Parser.map Breadcrumb (s "breadcrumb")
         , Url.Parser.map Form (s "form")
         , Url.Parser.map Progress (s "progress")
         , Url.Parser.map Card (s "card")
@@ -103,11 +99,6 @@ routing url model =
 
                             Top ->
                                 ( TopModel, Effect.none )
-
-                            Breadcrumb ->
-                                Breadcrumb.init
-                                    |> Tuple.mapSecond Effect.fromCmd
-                                    |> updateWith BreadcrumbModel BreadcrumbMsg
 
                             Form ->
                                 Form.init
@@ -145,8 +136,7 @@ type Msg
 
 
 type PageMsg
-    = BreadcrumbMsg Breadcrumb.Msg
-    | FormMsg Form.Msg
+    = FormMsg Form.Msg
     | ProgressMsg Progress.Msg
     | CardMsg Card.Msg
 
@@ -178,10 +168,6 @@ update msg model =
             let
                 ( subModel, effect ) =
                     case ( model.subModel, pageMsg ) of
-                        ( BreadcrumbModel subModel_, BreadcrumbMsg subMsg ) ->
-                            Breadcrumb.update subMsg subModel_
-                                |> updateWith BreadcrumbModel BreadcrumbMsg
-
                         ( FormModel subModel_, FormMsg subMsg ) ->
                             Form.update subMsg subModel_
                                 |> Tuple.mapSecond Effect.fromCmd
@@ -221,14 +207,10 @@ view { url, shared, subModel } =
             [ text "Not Found" ]
 
         TopModel ->
-            [ a [ href "/breadcrumb" ] [ text "Breadcrumb" ]
-            , a [ href "/form" ] [ text "Form" ]
+            [ a [ href "/form" ] [ text "Form" ]
             , a [ href "/progress" ] [ text "Progress" ]
             , a [ href "/card" ] [ text "Card" ]
             ]
-
-        BreadcrumbModel subModel_ ->
-            List.map (Html.map BreadcrumbMsg) (Breadcrumb.view shared subModel_)
 
         FormModel subModel_ ->
             List.map (Html.map FormMsg) (Form.view shared subModel_)
@@ -246,9 +228,6 @@ view { url, shared, subModel } =
                     [ skeleton { url = url, theme = shared.theme, changeThemeMsg = Shared.ChangeTheme >> Shared }
                         { title =
                             case subModel of
-                                BreadcrumbModel _ ->
-                                    "Breadcrumb"
-
                                 FormModel _ ->
                                     "Form"
 
