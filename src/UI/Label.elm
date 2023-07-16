@@ -20,9 +20,9 @@ import Css.Global exposing (children)
 import Css.Layout as Layout exposing (layout)
 import Css.Palette as Palette exposing (Palette, palette, setBackground, setColor, textColor)
 import Css.Typography as Typography exposing (setFontSize, setFontWeight, setLineHeight, setTextTransform, typography)
-import Types exposing (PresetColor(..))
 import Data.PalettesByState as PalettesByState exposing (black, blue)
 import Html.Styled as Html exposing (Attribute, Html)
+import Types exposing (PresetColor(..))
 
 
 type alias Props =
@@ -47,7 +47,7 @@ basis options additionalStyles =
             (Typography.init
                 |> setFontSize (rem 0.85714286)
                 |> setFontWeight bold
-                |> setLineHeight (int 1)
+                |> setLineHeight (num 1)
                 |> setTextTransform none
             )
         , margin2 zero (em 0.14285714)

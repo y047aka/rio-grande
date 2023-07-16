@@ -6,9 +6,9 @@
   },
   "devDependencies": {
     "elm": "^0.19.1-5",
-    "elm-format": "^0.8.6",
+    "elm-format": "^0.8.7",
     "elm-watch": "^1.1.2",
-    "esbuild": "^0.17.11",
+    "esbuild": "^0.17.19",
     "run-pty": "^4.0.3"
   }
 }

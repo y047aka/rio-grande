@@ -18,9 +18,9 @@ import Css exposing (..)
 import Css.Global exposing (adjacentSiblings, children, typeSelector)
 import Css.Palette as Palette exposing (darkPalette, palette, setColor)
 import Css.Typography as Typography exposing (setFontSize, setFontWeight, setLineHeight, setTextTransform, typography)
-import Types exposing (Size(..))
 import Data.Theme exposing (Theme)
 import Html.Styled as Html exposing (Attribute, Html)
+import Types exposing (Size(..))
 
 
 basis : { theme : Theme } -> List Style -> List (Attribute msg) -> List (Html msg) -> Html msg
@@ -211,7 +211,7 @@ iconHeader props =
                 , typography
                     (Typography.init
                         |> setFontSize (em 3)
-                        |> setLineHeight (int 1)
+                        |> setLineHeight (num 1)
                     )
                 , margin3 zero auto (rem 0.5)
                 , opacity (int 1)
