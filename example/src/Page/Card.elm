@@ -2,11 +2,12 @@ module Page.Card exposing (Model, Msg, init, update, view)
 
 import Data.DummyData as DummyData
 import Data.Theme exposing (Theme(..))
-import Html.Styled as Html exposing (Html, text)
+import Html.Styled as Html exposing (Html, div, text)
 import Html.Styled.Attributes exposing (src)
 import Playground exposing (playground)
 import Shared
 import UI.Card as Card exposing (cards, extraContent)
+import UI.Header as Header
 import UI.Icon exposing (icon)
 import UI.Image exposing (image)
 
@@ -151,66 +152,68 @@ view shared { config, people } =
                         text ""
                 ]
     in
-    [ playground
-        { title = "Cards"
-        , theme = shared.theme
-        , inverted = config.inverted
-        , preview = [ cards [] (List.map card people) ]
-        , configSections =
-            [ { label = ""
-              , configs =
-                    [ Playground.bool
-                        { id = "inverted"
-                        , label = "Inverted"
-                        , bool = config.inverted
-                        , onClick = (\c -> { c | inverted = not c.inverted }) |> UpdateConfig
-                        , note = ""
-                        }
-                    ]
-              }
-            , { label = "Content"
-              , configs =
-                    [ Playground.bool
-                        { label = "Image"
-                        , id = "image"
-                        , bool = config.hasImage
-                        , onClick = (\c -> { c | hasImage = not c.hasImage }) |> UpdateConfig
-                        , note = "A card can contain an image"
-                        }
-                    , Playground.boolAndString
-                        { label = "Header"
-                        , id = "header"
-                        , data = config.header
-                        , onUpdate = (\data -> \c -> { c | header = data }) >> UpdateConfig
-                        , placeholder = "Matt Giampietro"
-                        , note = ""
-                        }
-                    , Playground.boolAndString
-                        { label = "Metadata"
-                        , id = "metadata"
-                        , data = config.metadata
-                        , onUpdate = (\data -> \c -> { c | metadata = data }) >> UpdateConfig
-                        , placeholder = "Friends"
-                        , note = ""
-                        }
-                    , Playground.boolAndString
-                        { label = "Description"
-                        , id = "description"
-                        , data = config.description
-                        , onUpdate = (\data -> \c -> { c | description = data }) >> UpdateConfig
-                        , placeholder = "Matthew is an interior designer living in New York."
-                        , note = "A card can contain a description with one or more paragraphs"
-                        }
-                    , Playground.boolAndString
-                        { label = "Extra Content"
-                        , id = "extra_content"
-                        , data = config.extraContent
-                        , onUpdate = (\data -> \c -> { c | extraContent = data }) >> UpdateConfig
-                        , placeholder = "75 Friends"
-                        , note = "A card can contain extra content meant to be formatted separately from the main content"
-                        }
-                    ]
-              }
-            ]
-        }
+    [ div []
+        [ Header.header { theme = shared.theme } [] [ text "Cards" ]
+        , playground
+            { theme = shared.theme
+            , inverted = config.inverted
+            , preview = [ cards [] (List.map card people) ]
+            , configSections =
+                [ { label = ""
+                  , configs =
+                        [ Playground.bool
+                            { id = "inverted"
+                            , label = "Inverted"
+                            , bool = config.inverted
+                            , onClick = (\c -> { c | inverted = not c.inverted }) |> UpdateConfig
+                            , note = ""
+                            }
+                        ]
+                  }
+                , { label = "Content"
+                  , configs =
+                        [ Playground.bool
+                            { label = "Image"
+                            , id = "image"
+                            , bool = config.hasImage
+                            , onClick = (\c -> { c | hasImage = not c.hasImage }) |> UpdateConfig
+                            , note = "A card can contain an image"
+                            }
+                        , Playground.boolAndString
+                            { label = "Header"
+                            , id = "header"
+                            , data = config.header
+                            , onUpdate = (\data -> \c -> { c | header = data }) >> UpdateConfig
+                            , placeholder = "Matt Giampietro"
+                            , note = ""
+                            }
+                        , Playground.boolAndString
+                            { label = "Metadata"
+                            , id = "metadata"
+                            , data = config.metadata
+                            , onUpdate = (\data -> \c -> { c | metadata = data }) >> UpdateConfig
+                            , placeholder = "Friends"
+                            , note = ""
+                            }
+                        , Playground.boolAndString
+                            { label = "Description"
+                            , id = "description"
+                            , data = config.description
+                            , onUpdate = (\data -> \c -> { c | description = data }) >> UpdateConfig
+                            , placeholder = "Matthew is an interior designer living in New York."
+                            , note = "A card can contain a description with one or more paragraphs"
+                            }
+                        , Playground.boolAndString
+                            { label = "Extra Content"
+                            , id = "extra_content"
+                            , data = config.extraContent
+                            , onUpdate = (\data -> \c -> { c | extraContent = data }) >> UpdateConfig
+                            , placeholder = "75 Friends"
+                            , note = "A card can contain extra content meant to be formatted separately from the main content"
+                            }
+                        ]
+                  }
+                ]
+            }
+        ]
     ]

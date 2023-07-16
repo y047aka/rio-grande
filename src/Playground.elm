@@ -21,7 +21,6 @@ import Html.Styled.Events exposing (onClick, onInput)
 import Types exposing (FormState(..))
 import UI.Button exposing (button, labeledButton)
 import UI.Checkbox as Checkbox
-import UI.Header as Header
 import UI.Input as Input
 import UI.Label exposing (basicLabel)
 
@@ -33,28 +32,24 @@ type alias ConfigSection msg =
 
 
 playground :
-    { title : String
-    , theme : Theme
+    { theme : Theme
     , inverted : Bool
     , preview : List (Html msg)
     , configSections : List (ConfigSection msg)
     }
     -> Html msg
-playground { title, theme, inverted, preview, configSections } =
-    div []
-        [ Header.header { theme = theme } [] [ text title ]
-        , div
-            [ css
-                [ property "display" "grid"
-                , property "grid-template-columns" "1fr 300px"
-                , border3 (px 1) solid (hex "#DDD")
-                , borderRadius (px 15)
-                , overflow hidden
-                ]
+playground { theme, inverted, preview, configSections } =
+    div
+        [ css
+            [ property "display" "grid"
+            , property "grid-template-columns" "1fr 300px"
+            , border3 (px 1) solid (hex "#DDD")
+            , borderRadius (px 15)
+            , overflow hidden
             ]
-            [ previewPanel { inverted = inverted } preview
-            , configPanel configSections
-            ]
+        ]
+        [ previewPanel { inverted = inverted } preview
+        , configPanel configSections
         ]
 
 

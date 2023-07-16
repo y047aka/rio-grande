@@ -1,7 +1,7 @@
 module Page.Form exposing (Model, Msg, init, update, view)
 
 import Data.Theme exposing (Theme(..))
-import Html.Styled as Html exposing (Html, text)
+import Html.Styled as Html exposing (Html, div, text)
 import Html.Styled.Attributes exposing (placeholder, rows, type_)
 import Playground exposing (playground)
 import Shared
@@ -9,6 +9,7 @@ import Types exposing (FormState(..), formStateFromString, formStateToString)
 import UI.Button exposing (button)
 import UI.Checkbox as Checkbox
 import UI.Form as Form exposing (field, fields, form, textarea, threeFields, twoFields)
+import UI.Header as Header
 
 
 
@@ -55,206 +56,217 @@ update msg model =
 
 view : Shared.Model -> Model -> List (Html Msg)
 view shared model =
-    [ playground
-        { title = "Form"
-        , theme = shared.theme
-        , inverted = False
-        , preview =
-            [ form []
-                [ twoFields []
-                    [ field
-                        { type_ = "text"
-                        , label = "First Name"
+    [ div []
+        [ Header.header { theme = shared.theme } [] [ text "Form" ]
+        , playground
+            { theme = shared.theme
+            , inverted = False
+            , preview =
+                [ form []
+                    [ twoFields []
+                        [ field
+                            { type_ = "text"
+                            , label = "First Name"
+                            , state = model.state
+                            }
+                            []
+                            [ Form.input { state = model.state } [ type_ "text", placeholder "First Name" ] [] ]
+                        , field
+                            { type_ = "text"
+                            , label = "Last Name"
+                            , state = Default
+                            }
+                            []
+                            [ Form.input { state = Default } [ type_ "text", placeholder "Last Name" ] [] ]
+                        ]
+                    , field
+                        { type_ = "checkbox"
+                        , label = ""
                         , state = model.state
                         }
                         []
-                        [ Form.input { state = model.state } [ type_ "text", placeholder "First Name" ] [] ]
-                    , field
-                        { type_ = "text"
-                        , label = "Last Name"
-                        , state = Default
-                        }
-                        []
-                        [ Form.input { state = Default } [ type_ "text", placeholder "Last Name" ] [] ]
+                        [ Checkbox.checkboxWithProps
+                            { id = "state_example"
+                            , label = "I agree to the Terms and Conditions"
+                            , checked = model.checked
+                            , disabled = False
+                            , state = model.state
+                            , onClick = ToggleChecked
+                            }
+                        ]
+                    , button [ type_ "submit" ] [ text "Submit" ]
                     ]
-                , field
-                    { type_ = "checkbox"
-                    , label = ""
-                    , state = model.state
-                    }
-                    []
-                    [ Checkbox.checkboxWithProps
-                        { id = "state_example"
-                        , label = "I agree to the Terms and Conditions"
-                        , checked = model.checked
-                        , disabled = False
-                        , state = model.state
-                        , onClick = ToggleChecked
-                        }
-                    ]
-                , button [ type_ "submit" ] [ text "Submit" ]
                 ]
-            ]
-        , configSections =
-            [ { label = "Form States"
-              , configs =
-                    [ Playground.select
-                        { label = ""
-                        , value = model.state
-                        , options = [ Default, Error, Warning, Success, Info ]
-                        , fromString = formStateFromString
-                        , toString = formStateToString
-                        , onChange = (\state c -> { c | state = state }) >> UpdateConfig
-                        , note =
-                            case model.state of
-                                Error ->
-                                    "Individual fields may display an error state"
+            , configSections =
+                [ { label = "Form States"
+                  , configs =
+                        [ Playground.select
+                            { label = ""
+                            , value = model.state
+                            , options = [ Default, Error, Warning, Success, Info ]
+                            , fromString = formStateFromString
+                            , toString = formStateToString
+                            , onChange = (\state c -> { c | state = state }) >> UpdateConfig
+                            , note =
+                                case model.state of
+                                    Error ->
+                                        "Individual fields may display an error state"
 
-                                Warning ->
-                                    "Individual fields may display a warning state"
+                                    Warning ->
+                                        "Individual fields may display a warning state"
 
-                                Success ->
-                                    "Individual fields may display a Success state"
+                                    Success ->
+                                        "Individual fields may display a Success state"
 
-                                Info ->
-                                    "Individual fields may display an informational state"
+                                    Info ->
+                                        "Individual fields may display an informational state"
 
-                                Default ->
-                                    ""
-                        }
-                    ]
-              }
-            ]
-        }
-    , playground
-        { title = "Field"
-        , theme = shared.theme
-        , inverted = False
-        , preview =
-            [ form []
-                [ field
-                    { type_ = "text"
-                    , label = "User Input"
-                    , state = Default
-                    }
-                    []
-                    [ Form.input { state = Default } [ type_ "text" ] [] ]
+                                    Default ->
+                                        ""
+                            }
+                        ]
+                  }
                 ]
-            ]
-        , configSections = []
-        }
-    , playground
-        { title = "Fields"
-        , theme = shared.theme
-        , inverted = False
-        , preview =
-            [ form []
-                [ fields []
+            }
+        ]
+    , div []
+        [ Header.header { theme = shared.theme } [] [ text "Field" ]
+        , playground
+            { theme = shared.theme
+            , inverted = False
+            , preview =
+                [ form []
                     [ field
                         { type_ = "text"
-                        , label = "First Name"
+                        , label = "User Input"
                         , state = Default
                         }
                         []
-                        [ Form.input { state = Default } [ type_ "text", placeholder "First Name" ] [] ]
-                    , field
-                        { type_ = "text"
-                        , label = "Middle name"
-                        , state = Default
-                        }
-                        []
-                        [ Form.input { state = Default } [ type_ "text", placeholder "Middle name" ] [] ]
-                    , field
-                        { type_ = "text"
-                        , label = "Last Name"
-                        , state = Default
-                        }
-                        []
-                        [ Form.input { state = Default } [ type_ "text", placeholder "Last Name" ] [] ]
+                        [ Form.input { state = Default } [ type_ "text" ] [] ]
                     ]
                 ]
-            ]
-        , configSections = []
-        }
-    , playground
-        { title = ""
-        , theme = shared.theme
-        , inverted = False
-        , preview =
-            [ form []
-                [ threeFields []
+            , configSections = []
+            }
+        ]
+    , div []
+        [ Header.header { theme = shared.theme } [] [ text "Fields" ]
+        , playground
+            { theme = shared.theme
+            , inverted = False
+            , preview =
+                [ form []
+                    [ fields []
+                        [ field
+                            { type_ = "text"
+                            , label = "First Name"
+                            , state = Default
+                            }
+                            []
+                            [ Form.input { state = Default } [ type_ "text", placeholder "First Name" ] [] ]
+                        , field
+                            { type_ = "text"
+                            , label = "Middle name"
+                            , state = Default
+                            }
+                            []
+                            [ Form.input { state = Default } [ type_ "text", placeholder "Middle name" ] [] ]
+                        , field
+                            { type_ = "text"
+                            , label = "Last Name"
+                            , state = Default
+                            }
+                            []
+                            [ Form.input { state = Default } [ type_ "text", placeholder "Last Name" ] [] ]
+                        ]
+                    ]
+                ]
+            , configSections = []
+            }
+        ]
+    , div []
+        [ playground
+            { theme = shared.theme
+            , inverted = False
+            , preview =
+                [ form []
+                    [ threeFields []
+                        [ field
+                            { type_ = "text"
+                            , label = "First Name"
+                            , state = Default
+                            }
+                            []
+                            [ Form.input { state = Default } [ type_ "text", placeholder "First Name" ] [] ]
+                        , field
+                            { type_ = "text"
+                            , label = "Middle name"
+                            , state = Default
+                            }
+                            []
+                            [ Form.input { state = Default } [ type_ "text", placeholder "Middle name" ] [] ]
+                        , field
+                            { type_ = "text"
+                            , label = "Last Name"
+                            , state = Default
+                            }
+                            []
+                            [ Form.input { state = Default } [ type_ "text", placeholder "Last Name" ] [] ]
+                        ]
+                    ]
+                ]
+            , configSections = []
+            }
+        ]
+    , div []
+        [ Header.header { theme = shared.theme } [] [ text "Text Area" ]
+        , playground
+            { theme = shared.theme
+            , inverted = False
+            , preview =
+                [ form []
                     [ field
-                        { type_ = "text"
-                        , label = "First Name"
+                        { type_ = "textarea"
+                        , label = "Text"
                         , state = Default
                         }
                         []
-                        [ Form.input { state = Default } [ type_ "text", placeholder "First Name" ] [] ]
+                        [ textarea { state = Default } [] [] ]
                     , field
-                        { type_ = "text"
-                        , label = "Middle name"
+                        { type_ = "textarea"
+                        , label = "Short Text"
                         , state = Default
                         }
                         []
-                        [ Form.input { state = Default } [ type_ "text", placeholder "Middle name" ] [] ]
-                    , field
-                        { type_ = "text"
-                        , label = "Last Name"
-                        , state = Default
-                        }
-                        []
-                        [ Form.input { state = Default } [ type_ "text", placeholder "Last Name" ] [] ]
+                        [ textarea { state = Default } [ rows 2 ] [] ]
                     ]
                 ]
-            ]
-        , configSections = []
-        }
-    , playground
-        { title = "Text Area"
-        , theme = shared.theme
-        , inverted = False
-        , preview =
-            [ form []
-                [ field
-                    { type_ = "textarea"
-                    , label = "Text"
-                    , state = Default
-                    }
-                    []
-                    [ textarea { state = Default } [] [] ]
-                , field
-                    { type_ = "textarea"
-                    , label = "Short Text"
-                    , state = Default
-                    }
-                    []
-                    [ textarea { state = Default } [ rows 2 ] [] ]
-                ]
-            ]
-        , configSections = []
-        }
-    , playground
-        { title = "Checkbox"
-        , theme = shared.theme
-        , inverted = False
-        , preview =
-            [ form []
-                [ field
-                    { type_ = "checkbox"
-                    , label = ""
-                    , state = Default
-                    }
-                    []
-                    [ Checkbox.checkbox
-                        { id = "checkbox_example_2"
-                        , label = "Checkbox"
-                        , disabled = False
-                        , checked = model.checked
-                        , onClick = ToggleChecked
+            , configSections = []
+            }
+        ]
+    , div []
+        [ Header.header { theme = shared.theme } [] [ text "Checkbox" ]
+        , playground
+            { theme = shared.theme
+            , inverted = False
+            , preview =
+                [ form []
+                    [ field
+                        { type_ = "checkbox"
+                        , label = ""
+                        , state = Default
                         }
+                        []
+                        [ Checkbox.checkbox
+                            { id = "checkbox_example_2"
+                            , label = "Checkbox"
+                            , disabled = False
+                            , checked = model.checked
+                            , onClick = ToggleChecked
+                            }
+                        ]
                     ]
                 ]
-            ]
-        , configSections = []
-        }
+            , configSections = []
+            }
+        ]
     ]
