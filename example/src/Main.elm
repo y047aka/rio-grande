@@ -33,12 +33,12 @@ main =
 type alias Model =
     { url : Url
     , key : Key
+    , page : PageModel
     , shared : Shared.Model
-    , subModel : SubModel
     }
 
 
-type SubModel
+type PageModel
     = None
     | TopModel
     | FormModel Form.Model
@@ -53,7 +53,7 @@ init flags url key =
             Shared.init {} flags
 
         ( model, cmd ) =
-            Model url key shared None
+            Model url key None shared
                 |> routing url
     in
     ( model
@@ -68,60 +68,43 @@ init flags url key =
 -- ROUTER
 
 
-type Page
-    = NotFound
-    | Top
-    | Form
-    | Progress
-    | Card
-
-
-parser : Parser (Page -> a) a
-parser =
-    Url.Parser.oneOf
-        [ Url.Parser.map Top Url.Parser.top
-        , Url.Parser.map Form (s "form")
-        , Url.Parser.map Progress (s "progress")
-        , Url.Parser.map Card (s "card")
-        ]
-
-
 routing : Url -> Model -> ( Model, Cmd Msg )
 routing url model =
     Url.Parser.parse parser url
-        |> Maybe.withDefault NotFound
-        |> (\page ->
-                let
-                    ( subModel, effect ) =
-                        case page of
-                            NotFound ->
-                                ( None, Effect.none )
-
-                            Top ->
-                                ( TopModel, Effect.none )
-
-                            Form ->
-                                Form.init
-                                    |> Tuple.mapSecond Effect.fromCmd
-                                    |> updateWith FormModel FormMsg
-
-                            Progress ->
-                                Progress.init
-                                    |> Tuple.mapSecond Effect.fromCmd
-                                    |> updateWith ProgressModel ProgressMsg
-
-                            Card ->
-                                Card.init
-                                    |> Tuple.mapSecond Effect.fromCmd
-                                    |> updateWith CardModel CardMsg
-                in
+        |> Maybe.withDefault ( None, Effect.none )
+        |> (\( pageModel, effect ) ->
                 ( { model
                     | url = url
-                    , subModel = subModel
+                    , page = pageModel
                   }
                 , Effect.toCmd ( Shared, Page ) effect
                 )
            )
+
+
+parser : Parser (( PageModel, Effect PageMsg ) -> a) a
+parser =
+    Url.Parser.oneOf
+        [ Url.Parser.top |> Url.Parser.map ( TopModel, Effect.none )
+        , s "form"
+            |> Url.Parser.map
+                (Form.init
+                    |> Tuple.mapSecond Effect.fromCmd
+                    |> updateWith FormModel FormMsg
+                )
+        , s "progress"
+            |> Url.Parser.map
+                (Progress.init
+                    |> Tuple.mapSecond Effect.fromCmd
+                    |> updateWith ProgressModel ProgressMsg
+                )
+        , s "card"
+            |> Url.Parser.map
+                (Card.init
+                    |> Tuple.mapSecond Effect.fromCmd
+                    |> updateWith CardModel CardMsg
+                )
+        ]
 
 
 
@@ -166,34 +149,34 @@ update msg model =
 
         Page pageMsg ->
             let
-                ( subModel, effect ) =
-                    case ( model.subModel, pageMsg ) of
-                        ( FormModel subModel_, FormMsg subMsg ) ->
-                            Form.update subMsg subModel_
+                ( pageModel, effect ) =
+                    case ( model.page, pageMsg ) of
+                        ( FormModel pageModel_, FormMsg pageMsg_ ) ->
+                            Form.update pageMsg_ pageModel_
                                 |> Tuple.mapSecond Effect.fromCmd
                                 |> updateWith FormModel FormMsg
 
-                        ( ProgressModel subModel_, ProgressMsg subMsg ) ->
-                            Progress.update subMsg subModel_
+                        ( ProgressModel pageModel_, ProgressMsg pageMsg_ ) ->
+                            Progress.update pageMsg_ pageModel_
                                 |> Tuple.mapSecond Effect.fromCmd
                                 |> updateWith ProgressModel ProgressMsg
 
-                        ( CardModel subModel_, CardMsg subMsg ) ->
-                            Card.update subMsg subModel_
+                        ( CardModel pageModel_, CardMsg pageMsg_ ) ->
+                            Card.update pageMsg_ pageModel_
                                 |> Tuple.mapSecond Effect.fromCmd
                                 |> updateWith CardModel CardMsg
 
                         _ ->
                             ( None, Effect.none )
             in
-            ( { model | subModel = subModel }
+            ( { model | page = pageModel }
             , Effect.toCmd ( Shared, Page ) effect
             )
 
 
-updateWith : (subModel -> SubModel) -> (subMsg -> PageMsg) -> ( subModel, Effect subMsg ) -> ( SubModel, Effect PageMsg )
-updateWith toModel toMsg ( subModel, subEffect ) =
-    ( toModel subModel, Effect.map toMsg subEffect )
+updateWith : (pageModel -> PageModel) -> (pageMsg_ -> PageMsg) -> ( pageModel, Effect pageMsg_ ) -> ( PageModel, Effect PageMsg )
+updateWith toModel toMsg ( pageModel, pageEffect ) =
+    ( toModel pageModel, Effect.map toMsg pageEffect )
 
 
 
@@ -201,8 +184,8 @@ updateWith toModel toMsg ( subModel, subEffect ) =
 
 
 view : Model -> Document Msg
-view { url, shared, subModel } =
-    (case subModel of
+view { url, shared, page } =
+    (case page of
         None ->
             [ text "Not Found" ]
 
@@ -212,22 +195,24 @@ view { url, shared, subModel } =
             , a [ href "/card" ] [ text "Card" ]
             ]
 
-        FormModel subModel_ ->
-            List.map (Html.map FormMsg) (Form.view shared subModel_)
+        FormModel pageModel ->
+            Form.view shared pageModel
+                |> List.map (Html.map (FormMsg >> Page))
 
-        ProgressModel subModel_ ->
-            List.map (Html.map ProgressMsg) (Progress.view shared subModel_)
+        ProgressModel pageModel ->
+            Progress.view shared pageModel
+                |> List.map (Html.map (ProgressMsg >> Page))
 
-        CardModel subModel_ ->
-            List.map (Html.map CardMsg) (Card.view shared subModel_)
+        CardModel pageModel ->
+            Card.view shared pageModel
+                |> List.map (Html.map (CardMsg >> Page))
     )
-        |> List.map (Html.map Page)
         |> (\view_ ->
                 { title = "rio grande"
                 , body =
                     [ skeleton { url = url, theme = shared.theme, changeThemeMsg = Shared.ChangeTheme >> Shared }
                         { title =
-                            case subModel of
+                            case page of
                                 FormModel _ ->
                                     "Form"
 
