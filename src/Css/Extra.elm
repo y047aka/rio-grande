@@ -1,4 +1,20 @@
-module Css.Extra exposing (none, orNone, prefixed, when)
+module Css.Extra exposing
+    ( batchIf, orNone
+    , marginBlock, marginInline, paddingBlock, paddingInline
+    , gap, rowGap, columnGap
+    , prefixed
+    )
+
+{-|
+
+@docs batchIf, orNone
+
+@docs marginBlock, marginInline, paddingBlock, paddingInline
+@docs gap, rowGap, columnGap
+
+@docs prefixed
+
+-}
 
 import Css exposing (..)
 
@@ -12,10 +28,10 @@ none =
     batch []
 
 
-when : Bool -> Style -> Style
-when condition style =
+batchIf : Bool -> List Style -> Style
+batchIf condition styles =
     if condition then
-        style
+        batch styles
 
     else
         none
@@ -26,6 +42,45 @@ orNone maybe f =
     maybe
         |> Maybe.map f
         |> Maybe.withDefault none
+
+
+
+-- PROPERTIES
+
+
+marginBlock : LengthOrAuto compatible -> Style
+marginBlock { value } =
+    property "margin-block" value
+
+
+marginInline : LengthOrAuto compatible -> Style
+marginInline { value } =
+    property "margin-inline" value
+
+
+paddingBlock : LengthOrAuto compatible -> Style
+paddingBlock { value } =
+    property "padding-block" value
+
+
+paddingInline : LengthOrAuto compatible -> Style
+paddingInline { value } =
+    property "padding-inline" value
+
+
+gap : Length compatible units -> Style
+gap { value } =
+    property "gap" value
+
+
+rowGap : Length compatible units -> Style
+rowGap { value } =
+    property "row-gap" value
+
+
+columnGap : Length compatible units -> Style
+columnGap { value } =
+    property "column-gap" value
 
 
 
