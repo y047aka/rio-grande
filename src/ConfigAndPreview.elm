@@ -13,7 +13,6 @@ module ConfigAndPreview exposing
 -}
 
 import Css exposing (..)
-import Css.Global exposing (children, selector)
 import Css.Palette as Palette exposing (darkPalette, palette, setBackground, setBorder, setColor)
 import Data.Theme exposing (Theme(..))
 import Html.Styled as Html exposing (Html, div, input, p, text)
@@ -24,7 +23,7 @@ import UI.Button exposing (button, labeledButton)
 import UI.Checkbox as Checkbox
 import UI.Input as Input
 import UI.Label exposing (basicLabel)
-import UI.Layout.Box as Box exposing (box, setPadding)
+import UI.Layout.Box as Box exposing (box)
 import UI.Layout.Sidebar exposing (withSidebar)
 import UI.Layout.Stack as Stack exposing (stack)
 
@@ -54,7 +53,7 @@ configAndPreview { theme, inverted, preview, configSections } =
                         }
                    )
     in
-    box (Box.defaultProps |> Box.setPadding 1 |> Box.setPalette palette_)
+    box (Box.defaultProps |> Box.setPadding 0.5 |> Box.setPalette palette_)
         [ css [ borderRadius (px 20) ] ]
         [ withSidebar
             { side = "right"
@@ -63,13 +62,7 @@ configAndPreview { theme, inverted, preview, configSections } =
             , space = 0
             , noStretch = False
             }
-            [ css
-                [ children
-                    [ selector ":nth-child(n+2)"
-                        [ borderLeft3 (px 1) solid (hex "#DDD") ]
-                    ]
-                ]
-            ]
+            []
             [ previewPanel { inverted = inverted } preview
             , configPanel configSections
             ]
@@ -92,7 +85,7 @@ previewPanel { inverted } previewSections =
             , flexDirection column
             , justifyContent center
             , padding (em 2)
-            , palette (Palette.init |> setBackground (hex "#FFFFFF"))
+            , palette (Palette.init |> setBackground (hex "#FFF"))
             , darkPalette theme
                 (Palette.init
                     |> setBackground (hex "#1B1C1D")
@@ -107,37 +100,39 @@ configPanel : List (ConfigSection msg) -> Html msg
 configPanel configSections =
     box
         (Box.defaultProps
-            |> Box.setPadding 0
-            |> Box.setPalette (Palette.init |> setBorder (hex "#DDD"))
+            |> Box.setPadding 0.5
+            |> Box.setBorderWidth 0
+            |> Box.setPalette (Palette.init |> setBackground (hex "EEE") |> setBorder (hex "#DDD"))
         )
-        [ css
-            [ borderRadius (px 10)
-            , overflow hidden
-            , children
-                [ selector ":nth-child(n+2)"
-                    [ borderTop3 (px 1) solid (hex "#DDD") ]
-                ]
-            ]
-        ]
-        (List.map
-            (\configSection ->
-                box (Box.defaultProps |> Box.setBorderWidth 0 |> setPadding 1)
-                    []
-                    [ stack Stack.defaultProps
-                        []
-                        (div
-                            [ css
-                                [ fontWeight bold
-                                , empty [ display none ]
-                                ]
-                            ]
-                            [ text configSection.label ]
-                            :: configSection.configs
+        [ css [ borderRadius (px 15) ] ]
+    <|
+        [ stack (Stack.defaultProps |> Stack.setGap 0.5)
+            []
+            (List.map
+                (\configSection ->
+                    box
+                        (Box.defaultProps
+                            |> Box.setPadding 1
+                            |> Box.setBorderWidth 0
+                            |> Box.setPalette (Palette.init |> setBackground (hex "FFF"))
                         )
-                    ]
+                        [ css [ borderRadius (px 10) ] ]
+                        [ stack Stack.defaultProps
+                            []
+                            (div
+                                [ css
+                                    [ fontWeight bold
+                                    , empty [ display none ]
+                                    ]
+                                ]
+                                [ text configSection.label ]
+                                :: configSection.configs
+                            )
+                        ]
+                )
+                configSections
             )
-            configSections
-        )
+        ]
 
 
 field : { label : String, note : String } -> Html msg -> Html msg
