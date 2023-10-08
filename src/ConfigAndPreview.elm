@@ -1,7 +1,7 @@
-module Playground exposing
-    ( playground
-    , string, bool, radio, select, counter
+module ConfigAndPreview exposing
+    ( string, bool, radio, select, counter
     , boolAndString
+    , configAndPreview
     )
 
 {-|
@@ -35,14 +35,14 @@ type alias ConfigSection msg =
     }
 
 
-playground :
+configAndPreview :
     { theme : Theme
     , inverted : Bool
     , preview : List (Html msg)
     , configSections : List (ConfigSection msg)
     }
     -> Html msg
-playground { theme, inverted, preview, configSections } =
+configAndPreview { theme, inverted, preview, configSections } =
     let
         palette_ =
             Palette.init

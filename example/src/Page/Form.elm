@@ -1,9 +1,9 @@
 module Page.Form exposing (Model, Msg, init, update, view)
 
+import ConfigAndPreview exposing (configAndPreview)
 import Data.Theme exposing (Theme(..))
 import Html.Styled as Html exposing (Html, div, text)
 import Html.Styled.Attributes exposing (placeholder, rows, type_)
-import Playground exposing (playground)
 import Shared
 import Types exposing (FormState(..), formStateFromString, formStateToString)
 import UI.Button exposing (button)
@@ -58,7 +58,7 @@ view : Shared.Model -> Model -> List (Html Msg)
 view shared model =
     [ div []
         [ Header.header { theme = shared.theme } [] [ text "Form" ]
-        , playground
+        , configAndPreview
             { theme = shared.theme
             , inverted = False
             , preview =
@@ -100,7 +100,7 @@ view shared model =
             , configSections =
                 [ { label = "Form States"
                   , configs =
-                        [ Playground.select
+                        [ ConfigAndPreview.select
                             { label = ""
                             , value = model.state
                             , options = [ Default, Error, Warning, Success, Info ]
@@ -131,7 +131,7 @@ view shared model =
         ]
     , div []
         [ Header.header { theme = shared.theme } [] [ text "Field" ]
-        , playground
+        , configAndPreview
             { theme = shared.theme
             , inverted = False
             , preview =
@@ -150,7 +150,7 @@ view shared model =
         ]
     , div []
         [ Header.header { theme = shared.theme } [] [ text "Fields" ]
-        , playground
+        , configAndPreview
             { theme = shared.theme
             , inverted = False
             , preview =
@@ -184,7 +184,7 @@ view shared model =
             }
         ]
     , div []
-        [ playground
+        [ configAndPreview
             { theme = shared.theme
             , inverted = False
             , preview =
@@ -219,7 +219,7 @@ view shared model =
         ]
     , div []
         [ Header.header { theme = shared.theme } [] [ text "Text Area" ]
-        , playground
+        , configAndPreview
             { theme = shared.theme
             , inverted = False
             , preview =
@@ -245,7 +245,7 @@ view shared model =
         ]
     , div []
         [ Header.header { theme = shared.theme } [] [ text "Checkbox" ]
-        , playground
+        , configAndPreview
             { theme = shared.theme
             , inverted = False
             , preview =

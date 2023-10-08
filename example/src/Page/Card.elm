@@ -1,10 +1,10 @@
 module Page.Card exposing (Model, Msg, init, update, view)
 
+import ConfigAndPreview exposing (configAndPreview)
 import Data.DummyData as DummyData
 import Data.Theme exposing (Theme(..))
 import Html.Styled as Html exposing (Html, div, text)
 import Html.Styled.Attributes exposing (src)
-import Playground exposing (playground)
 import Shared
 import UI.Card as Card exposing (cards, extraContent)
 import UI.Header as Header
@@ -154,14 +154,14 @@ view shared { config, people } =
     in
     [ div []
         [ Header.header { theme = shared.theme } [] [ text "Cards" ]
-        , playground
+        , configAndPreview
             { theme = shared.theme
             , inverted = config.inverted
             , preview = [ cards [] (List.map card people) ]
             , configSections =
                 [ { label = ""
                   , configs =
-                        [ Playground.bool
+                        [ ConfigAndPreview.bool
                             { id = "inverted"
                             , label = "Inverted"
                             , bool = config.inverted
@@ -172,14 +172,14 @@ view shared { config, people } =
                   }
                 , { label = "Content"
                   , configs =
-                        [ Playground.bool
+                        [ ConfigAndPreview.bool
                             { label = "Image"
                             , id = "image"
                             , bool = config.hasImage
                             , onClick = (\c -> { c | hasImage = not c.hasImage }) |> UpdateConfig
                             , note = "A card can contain an image"
                             }
-                        , Playground.boolAndString
+                        , ConfigAndPreview.boolAndString
                             { label = "Header"
                             , id = "header"
                             , data = config.header
@@ -187,7 +187,7 @@ view shared { config, people } =
                             , placeholder = "Matt Giampietro"
                             , note = ""
                             }
-                        , Playground.boolAndString
+                        , ConfigAndPreview.boolAndString
                             { label = "Metadata"
                             , id = "metadata"
                             , data = config.metadata
@@ -195,7 +195,7 @@ view shared { config, people } =
                             , placeholder = "Friends"
                             , note = ""
                             }
-                        , Playground.boolAndString
+                        , ConfigAndPreview.boolAndString
                             { label = "Description"
                             , id = "description"
                             , data = config.description
@@ -203,7 +203,7 @@ view shared { config, people } =
                             , placeholder = "Matthew is an interior designer living in New York."
                             , note = "A card can contain a description with one or more paragraphs"
                             }
-                        , Playground.boolAndString
+                        , ConfigAndPreview.boolAndString
                             { label = "Extra Content"
                             , id = "extra_content"
                             , data = config.extraContent
