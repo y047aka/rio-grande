@@ -14,7 +14,7 @@ module ConfigAndPreview exposing
 
 import Css exposing (..)
 import Css.Global exposing (children, selector)
-import Css.Palette as Palette exposing (darkPalette, palette, setBackground, setColor)
+import Css.Palette as Palette exposing (darkPalette, palette, setBackground, setBorder, setColor)
 import Data.Theme exposing (Theme(..))
 import Html.Styled as Html exposing (Html, div, input, p, text)
 import Html.Styled.Attributes as Attributes exposing (css, for, id, name, placeholder, selected, type_, value)
@@ -54,8 +54,8 @@ configAndPreview { theme, inverted, preview, configSections } =
                         }
                    )
     in
-    box (Box.defaultProps |> Box.setPadding 0 |> Box.setPalette palette_)
-        [ css [ borderRadius (px 15), overflow hidden ] ]
+    box (Box.defaultProps |> Box.setPadding 1 |> Box.setPalette palette_)
+        [ css [ borderRadius (px 20) ] ]
         [ withSidebar
             { side = "right"
             , sideWith = 25
@@ -105,9 +105,15 @@ previewPanel { inverted } previewSections =
 
 configPanel : List (ConfigSection msg) -> Html msg
 configPanel configSections =
-    box (Box.defaultProps |> Box.setBorderWidth 0 |> Box.setPadding 0)
+    box
+        (Box.defaultProps
+            |> Box.setPadding 0
+            |> Box.setPalette (Palette.init |> setBorder (hex "#DDD"))
+        )
         [ css
-            [ children
+            [ borderRadius (px 10)
+            , overflow hidden
+            , children
                 [ selector ":nth-child(n+2)"
                     [ borderTop3 (px 1) solid (hex "#DDD") ]
                 ]
