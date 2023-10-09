@@ -4,6 +4,7 @@ import ConfigAndPreview exposing (configAndPreview)
 import Data.Theme exposing (Theme(..))
 import Html.Styled as Html exposing (Html, div, text)
 import Html.Styled.Attributes exposing (placeholder, rows, type_)
+import Props
 import Shared
 import Types exposing (FormState(..), formStateFromString, formStateToString)
 import UI.Button exposing (button)
@@ -98,17 +99,23 @@ view shared model =
                     ]
                 ]
             , configSections =
-                [ { label = "Form States"
+                [ { label = ""
                   , configs =
-                        [ ConfigAndPreview.select
-                            { label = ""
-                            , value = model.state
-                            , options = [ Default, Error, Warning, Success, Info ]
-                            , fromString = formStateFromString
-                            , toString = formStateToString
-                            , onChange = (\state c -> { c | state = state }) >> UpdateConfig
-                            , note =
-                                case model.state of
+                        [ Props.render <|
+                            Props.field "Form States"
+                                (Props.select
+                                    { value = formStateToString model.state
+                                    , options = List.map formStateToString [ Default, Error, Warning, Success, Info ]
+                                    , onChange =
+                                        (\state ps ->
+                                            formStateFromString state
+                                                |> Maybe.map (\newState -> { ps | state = newState })
+                                                |> Maybe.withDefault ps
+                                        )
+                                            >> UpdateConfig
+                                    }
+                                )
+                                (case model.state of
                                     Error ->
                                         "Individual fields may display an error state"
 
@@ -123,7 +130,7 @@ view shared model =
 
                                     Default ->
                                         ""
-                            }
+                                )
                         ]
                   }
                 ]
