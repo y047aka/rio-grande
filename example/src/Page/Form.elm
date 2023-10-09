@@ -102,35 +102,37 @@ view shared model =
                 [ { label = ""
                   , configs =
                         [ Props.render <|
-                            Props.field "Form States"
-                                (Props.select
-                                    { value = formStateToString model.state
-                                    , options = List.map formStateToString [ Default, Error, Warning, Success, Info ]
-                                    , onChange =
-                                        (\state ps ->
-                                            formStateFromString state
-                                                |> Maybe.map (\newState -> { ps | state = newState })
-                                                |> Maybe.withDefault ps
-                                        )
-                                            >> UpdateConfig
-                                    }
-                                )
-                                (case model.state of
-                                    Error ->
-                                        "Individual fields may display an error state"
+                            Props.field
+                                { label = "Form States"
+                                , props =
+                                    Props.select
+                                        { value = formStateToString model.state
+                                        , options = List.map formStateToString [ Default, Error, Warning, Success, Info ]
+                                        , onChange =
+                                            (\state ps ->
+                                                formStateFromString state
+                                                    |> Maybe.map (\newState -> { ps | state = newState })
+                                                    |> Maybe.withDefault ps
+                                            )
+                                                >> UpdateConfig
+                                        }
+                                , note =
+                                    case model.state of
+                                        Error ->
+                                            "Individual fields may display an error state"
 
-                                    Warning ->
-                                        "Individual fields may display a warning state"
+                                        Warning ->
+                                            "Individual fields may display a warning state"
 
-                                    Success ->
-                                        "Individual fields may display a Success state"
+                                        Success ->
+                                            "Individual fields may display a Success state"
 
-                                    Info ->
-                                        "Individual fields may display an informational state"
+                                        Info ->
+                                            "Individual fields may display an informational state"
 
-                                    Default ->
-                                        ""
-                                )
+                                        Default ->
+                                            ""
+                                }
                         ]
                   }
                 ]

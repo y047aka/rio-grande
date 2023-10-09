@@ -27,7 +27,7 @@ type Props msg
     | Counter (CounterProps msg)
     | List (List (Props msg))
     | FieldSet String (List (Props msg))
-    | Field String String (Props msg)
+    | Field { label : String, note : String } (Props msg)
 
 
 type alias StringProps msg =
@@ -115,7 +115,7 @@ render props =
                 legend [] [ text label ]
                     :: List.map render childProps
 
-        Field label note ps ->
+        Field { label, note } ps ->
             div []
                 [ div [] [ Html.label [] [ text label ] ]
                 , render ps
@@ -153,6 +153,11 @@ fieldset =
     FieldSet
 
 
-field : String -> Props msg -> String -> Props msg
-field label props note =
-    Field label note props
+field :
+    { label : String
+    , props : Props msg
+    , note : String
+    }
+    -> Props msg
+field { label, note, props } =
+    Field { label = label, note = note } props
