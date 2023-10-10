@@ -3,6 +3,7 @@ module Props exposing
     , string, bool, select, counter
     , list, fieldset
     , field
+    , customize
     )
 
 {-|
@@ -11,6 +12,7 @@ module Props exposing
 @docs string, bool, select, counter
 @docs list, fieldset
 @docs field
+@docs customize
 
 -}
 
@@ -28,6 +30,7 @@ type Props msg
     | List (List (Props msg))
     | FieldSet String (List (Props msg))
     | Field { label : String, note : String } (Props msg)
+    | Customize (Html msg)
 
 
 type alias StringProps msg =
@@ -128,6 +131,9 @@ render props =
                 , div [] [ text note ]
                 ]
 
+        Customize view ->
+            view
+
 
 string : StringProps msg -> Props msg
 string =
@@ -167,3 +173,8 @@ field :
     -> Props msg
 field { label, note, props } =
     Field { label = label, note = note } props
+
+
+customize : Html msg -> Props msg
+customize =
+    Customize
