@@ -99,10 +99,10 @@ view shared model =
                     ]
                 ]
             , configSections =
-                [ { label = ""
+                [ { label = "Form States"
                   , configs =
                         [ Props.field
-                            { label = "Form States"
+                            { label = ""
                             , props =
                                 Props.select
                                     { value = formStateToString model.state

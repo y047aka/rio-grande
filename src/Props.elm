@@ -1,5 +1,5 @@
 module Props exposing
-    ( Props, render
+    ( Props(..), render
     , string, bool, select, counter
     , list, fieldset
     , field

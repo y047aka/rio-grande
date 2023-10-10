@@ -18,7 +18,7 @@ import Data.Theme exposing (Theme(..))
 import Html.Styled as Html exposing (Html, div, input, p, text)
 import Html.Styled.Attributes as Attributes exposing (css, for, id, name, placeholder, selected, type_, value)
 import Html.Styled.Events exposing (onClick, onInput)
-import Props exposing (Props)
+import Props exposing (Props(..))
 import Types exposing (FormState(..))
 import UI.Button exposing (button, labeledButton)
 import UI.Checkbox as Checkbox
@@ -127,13 +127,87 @@ configPanel configSections =
                                     ]
                                 ]
                                 [ text configSection.label ]
-                                :: List.map Props.render configSection.configs
+                                :: List.map render configSection.configs
                             )
                         ]
                 )
                 configSections
             )
         ]
+
+
+render : Props msg -> Html msg
+render props =
+    case props of
+        String ps ->
+            input
+                [ type_ "text"
+                , value ps.value
+                , onInput ps.onInput
+                , placeholder ps.placeholder
+                ]
+                []
+
+        Bool ps ->
+            Html.label []
+                [ input [ type_ "checkbox", Attributes.checked ps.value, onClick ps.onClick ] []
+                , text ps.label
+                ]
+
+        Select ps ->
+            Html.select [ onInput ps.onChange ]
+                (List.map (\option -> Html.option [ value option, selected (ps.value == option) ] [ text option ])
+                    ps.options
+                )
+
+        Radio ps ->
+            Html.fieldset []
+                (List.map
+                    (\option ->
+                        Html.label []
+                            [ input
+                                [ type_ "radio"
+                                , value option
+                                , Attributes.checked (ps.value == option)
+                                , onInput ps.onChange
+                                ]
+                                []
+                            ]
+                    )
+                    ps.options
+                )
+
+        Counter ps ->
+            div []
+                [ button [] [ text "-" ]
+                , text (String.fromFloat ps.value)
+                , button [] [ text "+" ]
+                ]
+
+        List childProps ->
+            div [] (List.map render childProps)
+
+        FieldSet label childProps ->
+            Html.fieldset [] <|
+                Html.legend [] [ text label ]
+                    :: List.map render childProps
+
+        Field { label, note } ps ->
+            stack (Stack.defaultProps |> Stack.setGap 0.5)
+                []
+                [ Html.label [ css [ empty [ display none ] ] ] [ text label ]
+                , render ps
+                , p
+                    [ css
+                        [ color (hex "#999")
+                        , empty [ display none ]
+                        ]
+                    ]
+                    [ text note ]
+                ]
+
+        Customize view ->
+            view
 
 
 field : { label : String, note : String } -> Html msg -> Html msg
