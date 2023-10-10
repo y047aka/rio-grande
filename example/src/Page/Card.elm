@@ -5,6 +5,7 @@ import Data.DummyData as DummyData
 import Data.Theme exposing (Theme(..))
 import Html.Styled as Html exposing (Html, div, text)
 import Html.Styled.Attributes exposing (src)
+import Props
 import Shared
 import UI.Card as Card exposing (cards, extraContent)
 import UI.Header as Header
@@ -161,57 +162,59 @@ view shared { config, people } =
             , configSections =
                 [ { label = ""
                   , configs =
-                        [ ConfigAndPreview.bool
-                            { id = "inverted"
-                            , label = "Inverted"
-                            , bool = config.inverted
-                            , onClick = (\c -> { c | inverted = not c.inverted }) |> UpdateConfig
-                            , note = ""
-                            }
-                        ]
+                        List.map Props.customize
+                            [ ConfigAndPreview.bool
+                                { id = "inverted"
+                                , label = "Inverted"
+                                , bool = config.inverted
+                                , onClick = (\c -> { c | inverted = not c.inverted }) |> UpdateConfig
+                                , note = ""
+                                }
+                            ]
                   }
                 , { label = "Content"
                   , configs =
-                        [ ConfigAndPreview.bool
-                            { label = "Image"
-                            , id = "image"
-                            , bool = config.hasImage
-                            , onClick = (\c -> { c | hasImage = not c.hasImage }) |> UpdateConfig
-                            , note = "A card can contain an image"
-                            }
-                        , ConfigAndPreview.boolAndString
-                            { label = "Header"
-                            , id = "header"
-                            , data = config.header
-                            , onUpdate = (\data -> \c -> { c | header = data }) >> UpdateConfig
-                            , placeholder = "Matt Giampietro"
-                            , note = ""
-                            }
-                        , ConfigAndPreview.boolAndString
-                            { label = "Metadata"
-                            , id = "metadata"
-                            , data = config.metadata
-                            , onUpdate = (\data -> \c -> { c | metadata = data }) >> UpdateConfig
-                            , placeholder = "Friends"
-                            , note = ""
-                            }
-                        , ConfigAndPreview.boolAndString
-                            { label = "Description"
-                            , id = "description"
-                            , data = config.description
-                            , onUpdate = (\data -> \c -> { c | description = data }) >> UpdateConfig
-                            , placeholder = "Matthew is an interior designer living in New York."
-                            , note = "A card can contain a description with one or more paragraphs"
-                            }
-                        , ConfigAndPreview.boolAndString
-                            { label = "Extra Content"
-                            , id = "extra_content"
-                            , data = config.extraContent
-                            , onUpdate = (\data -> \c -> { c | extraContent = data }) >> UpdateConfig
-                            , placeholder = "75 Friends"
-                            , note = "A card can contain extra content meant to be formatted separately from the main content"
-                            }
-                        ]
+                        List.map Props.customize
+                            [ ConfigAndPreview.bool
+                                { label = "Image"
+                                , id = "image"
+                                , bool = config.hasImage
+                                , onClick = (\c -> { c | hasImage = not c.hasImage }) |> UpdateConfig
+                                , note = "A card can contain an image"
+                                }
+                            , ConfigAndPreview.boolAndString
+                                { label = "Header"
+                                , id = "header"
+                                , data = config.header
+                                , onUpdate = (\data -> \c -> { c | header = data }) >> UpdateConfig
+                                , placeholder = "Matt Giampietro"
+                                , note = ""
+                                }
+                            , ConfigAndPreview.boolAndString
+                                { label = "Metadata"
+                                , id = "metadata"
+                                , data = config.metadata
+                                , onUpdate = (\data -> \c -> { c | metadata = data }) >> UpdateConfig
+                                , placeholder = "Friends"
+                                , note = ""
+                                }
+                            , ConfigAndPreview.boolAndString
+                                { label = "Description"
+                                , id = "description"
+                                , data = config.description
+                                , onUpdate = (\data -> \c -> { c | description = data }) >> UpdateConfig
+                                , placeholder = "Matthew is an interior designer living in New York."
+                                , note = "A card can contain a description with one or more paragraphs"
+                                }
+                            , ConfigAndPreview.boolAndString
+                                { label = "Extra Content"
+                                , id = "extra_content"
+                                , data = config.extraContent
+                                , onUpdate = (\data -> \c -> { c | extraContent = data }) >> UpdateConfig
+                                , placeholder = "75 Friends"
+                                , note = "A card can contain extra content meant to be formatted separately from the main content"
+                                }
+                            ]
                   }
                 ]
             }

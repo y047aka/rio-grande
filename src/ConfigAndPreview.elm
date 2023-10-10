@@ -18,6 +18,7 @@ import Data.Theme exposing (Theme(..))
 import Html.Styled as Html exposing (Html, div, input, p, text)
 import Html.Styled.Attributes as Attributes exposing (css, for, id, name, placeholder, selected, type_, value)
 import Html.Styled.Events exposing (onClick, onInput)
+import Props exposing (Props)
 import Types exposing (FormState(..))
 import UI.Button exposing (button, labeledButton)
 import UI.Checkbox as Checkbox
@@ -30,7 +31,7 @@ import UI.Layout.Stack as Stack exposing (stack)
 
 type alias ConfigSection msg =
     { label : String
-    , configs : List (Html msg)
+    , configs : List (Props msg)
     }
 
 
@@ -126,7 +127,7 @@ configPanel configSections =
                                     ]
                                 ]
                                 [ text configSection.label ]
-                                :: configSection.configs
+                                :: List.map Props.render configSection.configs
                             )
                         ]
                 )
