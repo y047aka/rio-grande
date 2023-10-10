@@ -16,7 +16,7 @@ module Props exposing
 
 import Html.Styled as Html exposing (Html, button, div, input, legend, text)
 import Html.Styled.Attributes exposing (checked, placeholder, selected, type_, value)
-import Html.Styled.Events exposing (onInput)
+import Html.Styled.Events exposing (onClick, onInput)
 
 
 type Props msg
@@ -38,7 +38,10 @@ type alias StringProps msg =
 
 
 type alias BoolProps msg =
-    { value : Bool, onClick : msg }
+    { label : String
+    , value : Bool
+    , onClick : msg
+    }
 
 
 type alias SelectProps msg =
@@ -75,7 +78,10 @@ render props =
                 []
 
         Bool ps ->
-            input [ type_ "checkbox", checked ps.value ] []
+            Html.label []
+                [ input [ type_ "checkbox", checked ps.value, onClick ps.onClick ] []
+                , text ps.label
+                ]
 
         Select ps ->
             Html.select [ onInput ps.onChange ]
