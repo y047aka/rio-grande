@@ -162,59 +162,68 @@ view shared { config, people } =
             , configSections =
                 [ { label = ""
                   , configs =
-                        List.map Props.customize
-                            [ ConfigAndPreview.bool
-                                { id = "inverted"
-                                , label = "Inverted"
-                                , bool = config.inverted
-                                , onClick = (\c -> { c | inverted = not c.inverted }) |> UpdateConfig
-                                , note = ""
-                                }
-                            ]
+                        [ Props.bool
+                            { label = "Inverted"
+                            , value = config.inverted
+                            , onClick = (\c -> { c | inverted = not c.inverted }) |> UpdateConfig
+                            }
+                        ]
                   }
                 , { label = "Content"
                   , configs =
-                        List.map Props.customize
-                            [ ConfigAndPreview.bool
-                                { label = "Image"
-                                , id = "image"
-                                , bool = config.hasImage
-                                , onClick = (\c -> { c | hasImage = not c.hasImage }) |> UpdateConfig
-                                , note = "A card can contain an image"
-                                }
-                            , ConfigAndPreview.boolAndString
+                        [ Props.field
+                            { label = ""
+                            , props =
+                                Props.bool
+                                    { label = "Image"
+                                    , value = config.hasImage
+                                    , onClick = (\c -> { c | hasImage = not c.hasImage }) |> UpdateConfig
+                                    }
+                            , note = "A card can contain an image"
+                            }
+                        , Props.customize <|
+                            ConfigAndPreview.boolAndString
                                 { label = "Header"
                                 , id = "header"
                                 , data = config.header
                                 , onUpdate = (\data -> \c -> { c | header = data }) >> UpdateConfig
                                 , placeholder = "Matt Giampietro"
-                                , note = ""
                                 }
-                            , ConfigAndPreview.boolAndString
+                        , Props.customize <|
+                            ConfigAndPreview.boolAndString
                                 { label = "Metadata"
                                 , id = "metadata"
                                 , data = config.metadata
                                 , onUpdate = (\data -> \c -> { c | metadata = data }) >> UpdateConfig
                                 , placeholder = "Friends"
-                                , note = ""
                                 }
-                            , ConfigAndPreview.boolAndString
-                                { label = "Description"
-                                , id = "description"
-                                , data = config.description
-                                , onUpdate = (\data -> \c -> { c | description = data }) >> UpdateConfig
-                                , placeholder = "Matthew is an interior designer living in New York."
-                                , note = "A card can contain a description with one or more paragraphs"
-                                }
-                            , ConfigAndPreview.boolAndString
-                                { label = "Extra Content"
-                                , id = "extra_content"
-                                , data = config.extraContent
-                                , onUpdate = (\data -> \c -> { c | extraContent = data }) >> UpdateConfig
-                                , placeholder = "75 Friends"
-                                , note = "A card can contain extra content meant to be formatted separately from the main content"
-                                }
-                            ]
+                        , Props.field
+                            { label = ""
+                            , props =
+                                Props.customize <|
+                                    ConfigAndPreview.boolAndString
+                                        { label = "Description"
+                                        , id = "description"
+                                        , data = config.description
+                                        , onUpdate = (\data -> \c -> { c | description = data }) >> UpdateConfig
+                                        , placeholder = "Matthew is an interior designer living in New York."
+                                        }
+                            , note = "A card can contain a description with one or more paragraphs"
+                            }
+                        , Props.field
+                            { label = ""
+                            , props =
+                                Props.customize <|
+                                    ConfigAndPreview.boolAndString
+                                        { label = "Extra Content"
+                                        , id = "extra_content"
+                                        , data = config.extraContent
+                                        , onUpdate = (\data -> \c -> { c | extraContent = data }) >> UpdateConfig
+                                        , placeholder = "75 Friends"
+                                        }
+                            , note = "A card can contain extra content meant to be formatted separately from the main content"
+                            }
+                        ]
                   }
                 ]
             }

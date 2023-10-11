@@ -1,13 +1,11 @@
 module ConfigAndPreview exposing
-    ( string, bool, radio, select, counter
-    , boolAndString
+    ( boolAndString
     , configAndPreview
     )
 
 {-|
 
 @docs playground
-@docs string, bool, radio, select, counter
 @docs boolAndString
 
 -}
@@ -16,9 +14,9 @@ import Css exposing (..)
 import Css.Palette as Palette exposing (darkPalette, palette, setBackground, setBorder, setColor)
 import Data.Theme exposing (Theme(..))
 import Html.Styled as Html exposing (Html, div, input, p, text)
-import Html.Styled.Attributes as Attributes exposing (css, for, id, name, placeholder, selected, type_, value)
+import Html.Styled.Attributes as Attributes exposing (css, id, placeholder, selected, type_, value)
 import Html.Styled.Events exposing (onClick, onInput)
-import Props exposing (Props(..))
+import Props exposing (BoolProps, CounterProps, Props(..), RadioProps, SelectProps, StringProps)
 import Types exposing (FormState(..))
 import UI.Button exposing (button, labeledButton)
 import UI.Checkbox as Checkbox
@@ -140,49 +138,19 @@ render : Props msg -> Html msg
 render props =
     case props of
         String ps ->
-            input
-                [ type_ "text"
-                , value ps.value
-                , onInput ps.onInput
-                , placeholder ps.placeholder
-                ]
-                []
+            string ps
 
         Bool ps ->
-            Html.label []
-                [ input [ type_ "checkbox", Attributes.checked ps.value, onClick ps.onClick ] []
-                , text ps.label
-                ]
+            bool ps
 
         Select ps ->
-            Html.select [ onInput ps.onChange ]
-                (List.map (\option -> Html.option [ value option, selected (ps.value == option) ] [ text option ])
-                    ps.options
-                )
+            select ps
 
         Radio ps ->
-            Html.fieldset []
-                (List.map
-                    (\option ->
-                        Html.label []
-                            [ input
-                                [ type_ "radio"
-                                , value option
-                                , Attributes.checked (ps.value == option)
-                                , onInput ps.onChange
-                                ]
-                                []
-                            ]
-                    )
-                    ps.options
-                )
+            radio ps
 
         Counter ps ->
-            div []
-                [ button [] [ text "-" ]
-                , text (String.fromFloat ps.value)
-                , button [] [ text "+" ]
-                ]
+            counter ps
 
         List childProps ->
             div [] (List.map render childProps)
@@ -192,30 +160,19 @@ render props =
                 Html.legend [] [ text label ]
                     :: List.map render childProps
 
-        Field { label, note } ps ->
-            stack (Stack.defaultProps |> Stack.setGap 0.5)
-                []
-                [ Html.label [ css [ empty [ display none ] ] ] [ text label ]
-                , render ps
-                , p
-                    [ css
-                        [ color (hex "#999")
-                        , empty [ display none ]
-                        ]
-                    ]
-                    [ text note ]
-                ]
+        Field labelAndNote ps ->
+            field labelAndNote ps
 
         Customize view ->
             view
 
 
-field : { label : String, note : String } -> Html msg -> Html msg
-field { label, note } child =
+field : { label : String, note : String } -> Props msg -> Html msg
+field { label, note } ps =
     stack (Stack.defaultProps |> Stack.setGap 0.5)
         []
         [ Html.label [ css [ empty [ display none ] ] ] [ text label ]
-        , child
+        , render ps
         , p
             [ css
                 [ color (hex "#999")
@@ -226,116 +183,64 @@ field { label, note } child =
         ]
 
 
-string :
-    { label : String
-    , value : String
-    , onInput : String -> msg
-    , placeholder : String
-    , note : String
-    }
-    -> Html msg
-string p =
-    field { label = p.label, note = p.note } <|
-        Input.input []
-            [ input
-                [ type_ "text"
-                , value p.value
-                , onInput p.onInput
-                , placeholder p.placeholder
-                ]
-                []
+string : StringProps msg -> Html msg
+string ps =
+    Input.input []
+        [ input
+            [ type_ "text"
+            , value ps.value
+            , onInput ps.onInput
+            , placeholder ps.placeholder
             ]
+            []
+        ]
 
 
-bool :
-    { label : String
-    , id : String
-    , bool : Bool
-    , onClick : msg
-    , note : String
-    }
-    -> Html msg
-bool p =
-    field { label = "", note = p.note } <|
-        Checkbox.toggleCheckbox
-            { id = p.id
-            , label = p.label
-            , checked = p.bool
-            , disabled = False
-            , onClick = p.onClick
-            }
+bool : BoolProps msg -> Html msg
+bool ps =
+    Checkbox.toggleCheckbox
+        { id = ps.label
+        , label = ps.label
+        , checked = ps.value
+        , disabled = False
+        , onClick = ps.onClick
+        }
 
 
-select :
-    { label : String
-    , value : option
-    , options : List option
-    , fromString : String -> Maybe option
-    , toString : option -> String
-    , onChange : option -> msg
-    , note : String
-    }
-    -> Html msg
-select p =
-    field { label = p.label, note = p.note } <|
-        Html.select [ onInput (p.fromString >> Maybe.withDefault p.value >> p.onChange) ]
-            (List.map (\option -> Html.option [ value (p.toString option), selected (p.value == option) ] [ text (p.toString option) ])
-                p.options
-            )
+select : SelectProps msg -> Html msg
+select ps =
+    Html.select [ onInput ps.onChange ]
+        (List.map (\option -> Html.option [ value option, selected (ps.value == option) ] [ text option ])
+            ps.options
+        )
 
 
-radio :
-    { label : String
-    , name : String
-    , value : option
-    , options : List option
-    , fromString : String -> Maybe option
-    , toString : option -> String
-    , onChange : option -> msg
-    , note : String
-    }
-    -> Html msg
-radio p =
-    field { label = p.label, note = p.note } <|
-        div [] <|
-            List.map
-                (\option ->
-                    let
-                        prefixedId =
-                            p.name ++ "_" ++ p.toString option
-                    in
-                    div []
-                        [ input
-                            [ id prefixedId
-                            , type_ "radio"
-                            , name p.name
-                            , value (p.toString option)
-                            , Attributes.checked (p.value == option)
-                            , onInput (p.fromString >> Maybe.withDefault p.value >> p.onChange)
-                            ]
-                            []
-                        , Html.label [ for prefixedId ] [ text (p.toString option) ]
+radio : RadioProps msg -> Html msg
+radio ps =
+    div [] <|
+        List.map
+            (\option ->
+                Html.label []
+                    [ input
+                        [ type_ "radio"
+                        , value option
+                        , Attributes.checked (ps.value == option)
+                        , onInput ps.onChange
                         ]
-                )
-                p.options
+                        []
+                    , text option
+                    ]
+            )
+            ps.options
 
 
-counter :
-    { label : String
-    , value : Float
-    , toString : Float -> String
-    , onClickPlus : msg
-    , onClickMinus : msg
-    , note : String
-    }
-    -> Html msg
-counter p =
-    field { label = p.label, note = p.note } <|
-        labeledButton []
-            [ button [ onClick p.onClickMinus ] [ text "-" ]
-            , basicLabel [] [ text (p.toString p.value) ]
-            , button [ onClick p.onClickPlus ] [ text "+" ]
-            ]
+counter : CounterProps msg -> Html msg
+counter ps =
+    labeledButton []
+        [ button [ onClick ps.onClickMinus ] [ text "-" ]
+        , basicLabel [] [ text (ps.toString ps.value) ]
+        , button [ onClick ps.onClickPlus ] [ text "+" ]
+        ]
 
 
 boolAndString :
@@ -344,24 +249,25 @@ boolAndString :
     , data : { visible : Bool, value : String }
     , onUpdate : { visible : Bool, value : String } -> msg
     , placeholder : String
-    , note : String
     }
     -> Html msg
-boolAndString { label, id, data, onUpdate, placeholder, note } =
+boolAndString { label, id, data, onUpdate, placeholder } =
     stack (Stack.defaultProps |> Stack.setGap 0.5)
         []
-        [ bool
-            { label = label
-            , id = id
-            , bool = data.visible
+        [ Checkbox.toggleCheckbox
+            { id = id
+            , label = label
+            , checked = data.visible
+            , disabled = False
             , onClick = onUpdate { data | visible = not data.visible }
-            , note = ""
             }
-        , string
-            { label = ""
-            , value = data.value
-            , onInput = \string_ -> onUpdate { data | value = string_ }
-            , placeholder = placeholder
-            , note = note
-            }
+        , Input.input []
+            [ input
+                [ type_ "text"
+                , value data.value
+                , onInput (\string_ -> onUpdate { data | value = string_ })
+                , Attributes.placeholder placeholder
+                ]
+                []
+            ]
         ]

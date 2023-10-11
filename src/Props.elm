@@ -1,5 +1,7 @@
 module Props exposing
-    ( Props(..), render
+    ( Props(..)
+    , StringProps, BoolProps, SelectProps, RadioProps, CounterProps
+    , render
     , string, bool, select, counter
     , list, fieldset
     , field
@@ -8,7 +10,9 @@ module Props exposing
 
 {-|
 
-@docs Props, render
+@docs Props
+@docs StringProps, BoolProps, SelectProps, RadioProps, CounterProps
+@docs render
 @docs string, bool, select, counter
 @docs list, fieldset
 @docs field
@@ -63,6 +67,7 @@ type alias RadioProps msg =
 
 type alias CounterProps msg =
     { value : Float
+    , toString : Float -> String
     , onClickPlus : msg
     , onClickMinus : msg
     }

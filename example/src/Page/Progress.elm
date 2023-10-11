@@ -119,115 +119,129 @@ view shared model =
             , configSections =
                 [ { label = "Bar"
                   , configs =
-                        List.map Props.customize
-                            [ ConfigAndPreview.counter
-                                { label = ""
-                                , value = model.progressValue
-                                , toString = \value -> String.fromFloat value ++ "%"
-                                , onClickPlus = CounterPlus
-                                , onClickMinus = CounterMinus
-                                , note = "A progress element can contain a bar visually indicating progress"
-                                }
-                            ]
+                        [ Props.field
+                            { label = ""
+                            , props =
+                                Props.counter
+                                    { value = model.progressValue
+                                    , toString = \value -> String.fromFloat value ++ "%"
+                                    , onClickPlus = CounterPlus
+                                    , onClickMinus = CounterMinus
+                                    }
+                            , note = "A progress element can contain a bar visually indicating progress"
+                            }
+                        ]
                   }
                 , { label = "Types"
                   , configs =
-                        List.map Props.customize
-                            [ ConfigAndPreview.bool
-                                { id = "indicating"
-                                , label = "Indicating"
-                                , bool = model.indicating
-                                , onClick =
-                                    (\c ->
-                                        let
-                                            newIndicating =
-                                                not c.indicating
-                                        in
-                                        { c
-                                            | indicating = newIndicating
-                                            , label =
-                                                if newIndicating then
-                                                    c.label
+                        [ Props.field
+                            { label = ""
+                            , props =
+                                Props.bool
+                                    { label = "Indicating"
+                                    , value = model.indicating
+                                    , onClick =
+                                        (\c ->
+                                            let
+                                                newIndicating =
+                                                    not c.indicating
+                                            in
+                                            { c
+                                                | indicating = newIndicating
+                                                , label =
+                                                    if newIndicating then
+                                                        c.label
 
-                                                else
-                                                    "Uploading Files"
-                                        }
-                                            |> updatelabelOnIndicating
-                                    )
-                                        |> UpdateConfig
-                                , note = "An indicating progress bar visually indicates the current level of progress of a task"
-                                }
-                            ]
+                                                    else
+                                                        "Uploading Files"
+                                            }
+                                                |> updatelabelOnIndicating
+                                        )
+                                            |> UpdateConfig
+                                    }
+                            , note = "An indicating progress bar visually indicates the current level of progress of a task"
+                            }
+                        ]
                   }
                 , { label = "States"
                   , configs =
-                        List.map Props.customize
-                            [ ConfigAndPreview.select
-                                { label = ""
-                                , value = model.state
-                                , options = [ Default, Active, Success, Warning, Error, Disabled ]
-                                , fromString = Progress.stateFromString
-                                , toString = Progress.stateToString
-                                , onChange =
-                                    (\state c ->
-                                        { c
-                                            | state = state
-                                            , label =
-                                                case state of
-                                                    Success ->
-                                                        "Everything worked, your file is all ready."
+                        [ Props.field
+                            { label = ""
+                            , props =
+                                Props.select
+                                    { value = Progress.stateToString model.state
+                                    , options = List.map Progress.stateToString [ Default, Active, Success, Warning, Error, Disabled ]
+                                    , onChange =
+                                        (\prevState ps ->
+                                            Progress.stateFromString prevState
+                                                |> Maybe.map
+                                                    (\state ->
+                                                        { ps
+                                                            | state = state
+                                                            , label =
+                                                                case state of
+                                                                    Success ->
+                                                                        "Everything worked, your file is all ready."
 
-                                                    Warning ->
-                                                        "Your file didn't meet the minimum resolution requirements."
+                                                                    Warning ->
+                                                                        "Your file didn't meet the minimum resolution requirements."
 
-                                                    Error ->
-                                                        "There was an error."
+                                                                    Error ->
+                                                                        "There was an error."
 
-                                                    _ ->
-                                                        c.label
-                                        }
-                                    )
-                                        >> UpdateConfig
-                                , note =
-                                    case model.state of
-                                        Active ->
-                                            "A progress bar can show activity"
+                                                                    _ ->
+                                                                        ps.label
+                                                        }
+                                                    )
+                                                |> Maybe.withDefault ps
+                                        )
+                                            >> UpdateConfig
+                                    }
+                            , note =
+                                case model.state of
+                                    Active ->
+                                        "A progress bar can show activity"
 
-                                        Success ->
-                                            "A progress bar can show a success state"
+                                    Success ->
+                                        "A progress bar can show a success state"
 
-                                        Warning ->
-                                            "A progress bar can show a warning state"
+                                    Warning ->
+                                        "A progress bar can show a warning state"
 
-                                        Error ->
-                                            "A progress bar can show an error state"
+                                    Error ->
+                                        "A progress bar can show an error state"
 
-                                        Disabled ->
-                                            "A progress bar can be disabled"
+                                    Disabled ->
+                                        "A progress bar can be disabled"
 
-                                        _ ->
-                                            ""
-                                }
-                            ]
+                                    _ ->
+                                        ""
+                            }
+                        ]
                   }
                 , { label = "Content"
                   , configs =
-                        List.map Props.customize
-                            [ ConfigAndPreview.string
-                                { label = "Progress"
-                                , value = model.progressLabel
-                                , onInput = (\string c -> { c | progressLabel = string }) >> UpdateConfig
-                                , placeholder = ""
-                                , note = "A progress bar can contain a text value indicating current progress"
-                                }
-                            , ConfigAndPreview.string
-                                { label = "Label"
-                                , value = model.label
-                                , onInput = (\string c -> { c | label = string }) >> UpdateConfig
-                                , placeholder = ""
-                                , note = "A progress element can contain a label"
-                                }
-                            ]
+                        [ Props.field
+                            { label = "Progress"
+                            , props =
+                                Props.string
+                                    { value = model.progressLabel
+                                    , onInput = (\string ps -> { ps | progressLabel = string }) >> UpdateConfig
+                                    , placeholder = ""
+                                    }
+                            , note = "A progress bar can contain a text value indicating current progress"
+                            }
+                        , Props.field
+                            { label = "Label"
+                            , props =
+                                Props.string
+                                    { value = model.label
+                                    , onInput = (\string ps -> { ps | label = string }) >> UpdateConfig
+                                    , placeholder = ""
+                                    }
+                            , note = "A progress element can contain a label"
+                            }
+                        ]
                   }
                 ]
             }
