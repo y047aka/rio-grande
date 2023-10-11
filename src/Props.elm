@@ -1,8 +1,8 @@
 module Props exposing
     ( Props(..)
-    , StringProps, BoolProps, SelectProps, RadioProps, CounterProps
+    , StringProps, BoolProps, SelectProps, RadioProps, CounterProps, BoolAndStringProps
     , render
-    , string, bool, select, counter
+    , string, bool, select, counter, boolAndString
     , list, fieldset
     , field
     , customize
@@ -11,9 +11,9 @@ module Props exposing
 {-|
 
 @docs Props
-@docs StringProps, BoolProps, SelectProps, RadioProps, CounterProps
+@docs StringProps, BoolProps, SelectProps, RadioProps, CounterProps, BoolAndStringProps
 @docs render
-@docs string, bool, select, counter
+@docs string, bool, select, counter, boolAndString
 @docs list, fieldset
 @docs field
 @docs customize
@@ -21,7 +21,7 @@ module Props exposing
 -}
 
 import Html.Styled as Html exposing (Html, button, div, input, legend, text)
-import Html.Styled.Attributes exposing (checked, placeholder, selected, type_, value)
+import Html.Styled.Attributes exposing (checked, disabled, placeholder, selected, type_, value)
 import Html.Styled.Events exposing (onClick, onInput)
 
 
@@ -31,6 +31,7 @@ type Props msg
     | Select (SelectProps msg)
     | Radio (RadioProps msg)
     | Counter (CounterProps msg)
+    | BoolAndString (BoolAndStringProps msg)
     | List (List (Props msg))
     | FieldSet String (List (Props msg))
     | Field { label : String, note : String } (Props msg)
@@ -70,6 +71,15 @@ type alias CounterProps msg =
     , toString : Float -> String
     , onClickPlus : msg
     , onClickMinus : msg
+    }
+
+
+type alias BoolAndStringProps msg =
+    { label : String
+    , id : String
+    , data : { visible : Bool, value : String }
+    , onUpdate : { visible : Bool, value : String } -> msg
+    , placeholder : String
     }
 
 
@@ -121,6 +131,29 @@ render props =
                 , button [] [ text "+" ]
                 ]
 
+        BoolAndString ({ data } as ps) ->
+            div []
+                [ div []
+                    [ Html.label []
+                        [ input
+                            [ type_ "checkbox"
+                            , checked data.visible
+                            , disabled False
+                            , onClick (ps.onUpdate { data | visible = not data.visible })
+                            ]
+                            []
+                        , text ps.label
+                        ]
+                    ]
+                , input
+                    [ type_ "text"
+                    , value data.value
+                    , onInput (\string_ -> ps.onUpdate { data | value = string_ })
+                    , placeholder ps.placeholder
+                    ]
+                    []
+                ]
+
         List childProps ->
             div [] (List.map render childProps)
 
@@ -158,6 +191,11 @@ select =
 counter : CounterProps msg -> Props msg
 counter =
     Counter
+
+
+boolAndString : BoolAndStringProps msg -> Props msg
+boolAndString =
+    BoolAndString
 
 
 list : List (Props msg) -> Props msg

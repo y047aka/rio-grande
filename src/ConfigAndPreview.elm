@@ -1,12 +1,8 @@
-module ConfigAndPreview exposing
-    ( boolAndString
-    , configAndPreview
-    )
+module ConfigAndPreview exposing (configAndPreview)
 
 {-|
 
-@docs playground
-@docs boolAndString
+@docs configAndPreview
 
 -}
 
@@ -16,7 +12,7 @@ import Data.Theme exposing (Theme(..))
 import Html.Styled as Html exposing (Html, div, input, p, text)
 import Html.Styled.Attributes as Attributes exposing (css, id, placeholder, selected, type_, value)
 import Html.Styled.Events exposing (onClick, onInput)
-import Props exposing (BoolProps, CounterProps, Props(..), RadioProps, SelectProps, StringProps)
+import Props exposing (BoolAndStringProps, BoolProps, CounterProps, Props(..), RadioProps, SelectProps, StringProps)
 import Types exposing (FormState(..))
 import UI.Button exposing (button, labeledButton)
 import UI.Checkbox as Checkbox
@@ -152,6 +148,9 @@ render props =
         Counter ps ->
             counter ps
 
+        BoolAndString ps ->
+            boolAndString ps
+
         List childProps ->
             div [] (List.map render childProps)
 
@@ -243,14 +242,7 @@ counter ps =
         ]
 
 
-boolAndString :
-    { label : String
-    , id : String
-    , data : { visible : Bool, value : String }
-    , onUpdate : { visible : Bool, value : String } -> msg
-    , placeholder : String
-    }
-    -> Html msg
+boolAndString : BoolAndStringProps msg -> Html msg
 boolAndString { label, id, data, onUpdate, placeholder } =
     stack (Stack.defaultProps |> Stack.setGap 0.5)
         []

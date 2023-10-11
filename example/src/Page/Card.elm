@@ -181,46 +181,42 @@ view shared { config, people } =
                                     }
                             , note = "A card can contain an image"
                             }
-                        , Props.customize <|
-                            ConfigAndPreview.boolAndString
-                                { label = "Header"
-                                , id = "header"
-                                , data = config.header
-                                , onUpdate = (\data -> \c -> { c | header = data }) >> UpdateConfig
-                                , placeholder = "Matt Giampietro"
-                                }
-                        , Props.customize <|
-                            ConfigAndPreview.boolAndString
-                                { label = "Metadata"
-                                , id = "metadata"
-                                , data = config.metadata
-                                , onUpdate = (\data -> \c -> { c | metadata = data }) >> UpdateConfig
-                                , placeholder = "Friends"
-                                }
+                        , Props.boolAndString
+                            { label = "Header"
+                            , id = "header"
+                            , data = config.header
+                            , onUpdate = (\data -> \c -> { c | header = data }) >> UpdateConfig
+                            , placeholder = "Matt Giampietro"
+                            }
+                        , Props.boolAndString
+                            { label = "Metadata"
+                            , id = "metadata"
+                            , data = config.metadata
+                            , onUpdate = (\data -> \c -> { c | metadata = data }) >> UpdateConfig
+                            , placeholder = "Friends"
+                            }
                         , Props.field
                             { label = ""
                             , props =
-                                Props.customize <|
-                                    ConfigAndPreview.boolAndString
-                                        { label = "Description"
-                                        , id = "description"
-                                        , data = config.description
-                                        , onUpdate = (\data -> \c -> { c | description = data }) >> UpdateConfig
-                                        , placeholder = "Matthew is an interior designer living in New York."
-                                        }
+                                Props.boolAndString
+                                    { label = "Description"
+                                    , id = "description"
+                                    , data = config.description
+                                    , onUpdate = (\data -> \c -> { c | description = data }) >> UpdateConfig
+                                    , placeholder = "Matthew is an interior designer living in New York."
+                                    }
                             , note = "A card can contain a description with one or more paragraphs"
                             }
                         , Props.field
                             { label = ""
                             , props =
-                                Props.customize <|
-                                    ConfigAndPreview.boolAndString
-                                        { label = "Extra Content"
-                                        , id = "extra_content"
-                                        , data = config.extraContent
-                                        , onUpdate = (\data -> \c -> { c | extraContent = data }) >> UpdateConfig
-                                        , placeholder = "75 Friends"
-                                        }
+                                Props.boolAndString
+                                    { label = "Extra Content"
+                                    , id = "extra_content"
+                                    , data = config.extraContent
+                                    , onUpdate = (\data -> \c -> { c | extraContent = data }) >> UpdateConfig
+                                    , placeholder = "75 Friends"
+                                    }
                             , note = "A card can contain extra content meant to be formatted separately from the main content"
                             }
                         ]
