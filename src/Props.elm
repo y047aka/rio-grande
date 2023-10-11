@@ -126,9 +126,9 @@ render props =
 
         Counter ps ->
             div []
-                [ button [] [ text "-" ]
-                , text (String.fromFloat ps.value)
-                , button [] [ text "+" ]
+                [ button [ onClick ps.onClickMinus ] [ text "-" ]
+                , text (ps.toString ps.value)
+                , button [ onClick ps.onClickPlus ] [ text "+" ]
                 ]
 
         BoolAndString ({ data } as ps) ->
